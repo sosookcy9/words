@@ -17,7 +17,7 @@
     --green: #4caf7d;
     --border: #ccc;
     --cell: 48px;   /* 字格大小 */
-    --zy-w: 16px;   /* 注音欄寬度 */
+    --zy-w: 20px;   /* 注音欄寬度 */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -213,7 +213,7 @@
 
   .char-box:not(.no-hover):hover .char-inner { opacity: .5; }
 
-  /* 注音欄: narrow column to the right of 字格 */
+  /* 注音欄 */
   .zy-col {
     width: var(--zy-w);
     height: var(--cell);
@@ -221,40 +221,44 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
     cursor: pointer;
     flex-shrink: 0;
+    border-left: 1px solid #eee;
   }
 
-  /* 注音符號 (consonant + vowel) stack top-to-bottom in left portion */
+  /* 注音符號垂直排列 */
   .zy-body {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    width: 10px;
-    height: 100%;
+  }
+
+  /* 每個注音符號一行，最後一行含聲調 */
+  .zy-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    line-height: 1;
   }
 
   .zy-sym {
     font-family: 'Noto Serif TC', serif;
-    font-size: 10.5px;
-    line-height: 1.25;
-    color: #222;
-    user-select: none;
-    display: block;
-    text-align: center;
-  }
-
-  /* 聲調: sits in the right sub-column, vertically centered with body */
-  .zy-tone {
-    position: absolute;
-    right: 0px;
-    font-family: 'Noto Serif TC', serif;
     font-size: 10px;
     color: #222;
     user-select: none;
-    line-height: 1;
+    display: block;
+    line-height: 1.25;
+  }
+
+  /* 聲調緊貼最後符號右側 */
+  .zy-tone {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 9px;
+    color: #222;
+    user-select: none;
+    display: block;
+    line-height: 1.25;
   }
 
   /* Empty state */
@@ -486,6 +490,68 @@ const ZY = {
   '緊':'ㄐㄧㄣˇ','整':'ㄓㄥˇ','齊':'ㄑㄧˊ','豐':'ㄈㄥ','富':'ㄈㄨˋ',
   '漂':'ㄆㄧㄠ','亮':'ㄌㄧㄤˋ','整':'ㄓㄥˇ','齊':'ㄑㄧˊ','乾':'ㄍㄢ',
   '淨':'ㄐㄧㄥˋ','確':'ㄑㄩㄝˋ','定':'ㄉㄧㄥˋ','完':'ㄨㄢˊ','成':'ㄔㄥˊ',
+  '龍':'ㄌㄨㄥˊ','龜':'ㄍㄨㄟ','噴':'ㄆㄣˋ','傑':'ㄐㄧㄝˊ','尾':'ㄨㄟˇ',
+  '蘋':'ㄆㄧㄣˊ','蕉':'ㄐㄧㄠ','桃':'ㄊㄠˊ','梨':'ㄌㄧˊ','柳':'ㄌㄧㄡˇ','橘':'ㄐㄩˊ',
+  '葡':'ㄆㄨˊ','萄':'ㄊㄠˊ','芒':'ㄇㄤˊ','荔':'ㄌㄧˋ','枝':'ㄓ','柿':'ㄕˋ',
+  '鳳':'ㄈㄥˋ','凰':'ㄏㄨㄤˊ','麒':'ㄑㄧˊ','麟':'ㄌㄧㄣˊ','騰':'ㄊㄥˊ','躍':'ㄩㄝˋ',
+  '巢':'ㄔㄠˊ','洞':'ㄉㄨㄥˋ','瀑':'ㄆㄨˋ','源':'ㄩㄢˊ','江':'ㄐㄧㄤ','島':'ㄉㄠˇ',
+  '曉':'ㄒㄧㄠˇ','鸚':'ㄧㄥ','鵡':'ㄨˇ','鯊':'ㄕㄚ','雁':'ㄧㄢˋ','鶴':'ㄏㄜˊ',
+  '窩':'ㄨㄛ','崖':'ㄧㄚˊ','壁':'ㄅㄧˋ','峰':'ㄈㄥ','谷':'ㄍㄨˇ','灣':'ㄨㄢ',
+  '初':'ㄔㄨ','性':'ㄒㄧㄥˋ','善':'ㄕㄢˋ','春':'ㄔㄨㄣ','眠':'ㄇㄧㄢˊ','覺':'ㄐㄩㄝˊ',
+  '處':'ㄔㄨˋ','聞':'ㄨㄣˊ','啼':'ㄊㄧˊ','夜':'ㄧㄝˋ','來':'ㄌㄞˊ','風':'ㄈㄥ',
+  '龍':'ㄌㄨㄥˊ','龜':'ㄍㄨㄟ','噴':'ㄆㄣˋ','傑':'ㄐㄧㄝˊ','尾':'ㄨㄟˇ','初':'ㄔㄨ',
+  '眠':'ㄇㄧㄢˊ','聞':'ㄨㄣˊ','啼':'ㄊㄧˊ','曉':'ㄒㄧㄠˇ','鸚':'ㄧㄥ','鵡':'ㄨˇ',
+  '鯊':'ㄕㄚ','蘋':'ㄆㄧㄣˊ','蕉':'ㄐㄧㄠ','桃':'ㄊㄠˊ','梨':'ㄌㄧˊ','柳':'ㄌㄧㄡˇ',
+  '橘':'ㄐㄩˊ','葡':'ㄆㄨˊ','萄':'ㄊㄠˊ','芒':'ㄇㄤˊ','荔':'ㄌㄧˋ','枝':'ㄓ',
+  '柿':'ㄕˋ','鳳':'ㄈㄥˋ','凰':'ㄏㄨㄤˊ','麒':'ㄑㄧˊ','麟':'ㄌㄧㄣˊ','騰':'ㄊㄥˊ',
+  '躍':'ㄩㄝˋ','巢':'ㄔㄠˊ','洞':'ㄉㄨㄥˋ','瀑':'ㄆㄨˋ','島':'ㄉㄠˇ','雁':'ㄧㄢˋ',
+  '鶴':'ㄏㄜˊ','窩':'ㄨㄛ','崖':'ㄧㄚˊ','壁':'ㄅㄧˋ','峰':'ㄈㄥ','額':'ㄜˊ',
+  '頰':'ㄐㄧㄚˊ','喉':'ㄏㄡˊ','嚨':'ㄌㄨㄥˊ','肋':'ㄌㄟˋ','膝':'ㄒㄧ','踝':'ㄏㄨㄞˊ',
+  '拇':'ㄇㄨˇ','腕':'ㄨㄢˋ','肘':'ㄓㄡˇ','臀':'ㄊㄨㄣˊ','脊':'ㄐㄧˇ','肌':'ㄐㄧ',
+  '絡':'ㄌㄨㄛˋ','脈':'ㄇㄞˋ','痊':'ㄑㄩㄢˊ','癒':'ㄩˋ','疫':'ㄧˋ','苗':'ㄇㄧㄠˊ',
+  '菌':'ㄐㄩㄣˋ','毒':'ㄉㄨˊ','傷':'ㄕㄤ','患':'ㄏㄨㄢˋ','診':'ㄓㄣˇ','療':'ㄌㄧㄠˊ',
+  '治':'ㄓˋ','康':'ㄎㄤ','煩':'ㄈㄢˊ','惱':'ㄋㄠˇ','憂':'ㄧㄡ','鬱':'ㄩˋ',
+  '沮':'ㄐㄩˇ','憤':'ㄈㄣˋ','懼':'ㄐㄩˋ','慚':'ㄘㄢˊ','愧':'ㄎㄨㄟˋ','妒':'ㄉㄨˋ',
+  '嫉':'ㄐㄧˊ','驕':'ㄐㄧㄠ','傲':'ㄠˋ','謙':'ㄑㄧㄢ','遜':'ㄒㄩㄣˋ','虛':'ㄒㄩ',
+  '偽':'ㄨㄟˇ','執':'ㄓˊ','迷':'ㄇㄧˊ','惑':'ㄏㄨㄛˋ','疑':'ㄧˊ','惶':'ㄏㄨㄤˊ',
+  '蹦':'ㄅㄥˋ','踢':'ㄊㄧ','踩':'ㄘㄞˇ','踏':'ㄊㄚˋ','揮':'ㄏㄨㄟ','撥':'ㄅㄛ',
+  '搓':'ㄘㄨㄛ','捏':'ㄋㄧㄝ','抓':'ㄓㄨㄚ','摸':'ㄇㄛ','碰':'ㄆㄥˋ','撞':'ㄓㄨㄤˋ',
+  '戳':'ㄔㄨㄛ','刺':'ㄘˋ','割':'ㄍㄜ','剝':'ㄅㄛ','撕':'ㄙ','折':'ㄓㄜˊ',
+  '彎':'ㄨㄢ','扭':'ㄋㄧㄡˇ','甩':'ㄕㄨㄞˇ','丟':'ㄉㄧㄡ','拋':'ㄆㄠ','射':'ㄕㄜˋ',
+  '瞄':'ㄇㄧㄠˊ','躲':'ㄉㄨㄛˇ','藏':'ㄘㄤˊ','逃':'ㄊㄠˊ','追':'ㄓㄨㄟ','趕':'ㄍㄢˇ',
+  '衝':'ㄔㄨㄥ','鑽':'ㄓㄨㄢ','滾':'ㄍㄨㄣˇ','翻':'ㄈㄢ','旋':'ㄒㄩㄢˊ','霧':'ㄨˋ',
+  '霜':'ㄕㄨㄤ','露':'ㄌㄨˋ','霞':'ㄒㄧㄚˊ','虹':'ㄏㄨㄥˊ','閃':'ㄕㄢˇ','震':'ㄓㄣˋ',
+  '颱':'ㄊㄞˊ','旱':'ㄏㄢˋ','洪':'ㄏㄨㄥˊ','潮':'ㄔㄠˊ','礦':'ㄎㄨㄤˋ','岩':'ㄧㄢˊ',
+  '熔':'ㄖㄨㄥˊ','漿':'ㄐㄧㄤ','燼':'ㄐㄧㄣˋ','焰':'ㄧㄢˋ','煙':'ㄧㄢ','炒':'ㄔㄠˇ',
+  '煮':'ㄓㄨˇ','蒸':'ㄓㄥ','烤':'ㄎㄠˇ','炸':'ㄓㄚˋ','滷':'ㄌㄨˇ','燉':'ㄉㄨㄣˋ',
+  '拌':'ㄅㄢˋ','醃':'ㄧㄢ','醬':'ㄐㄧㄤˋ','汁':'ㄓ','餃':'ㄐㄧㄠˇ','餡':'ㄒㄧㄢˋ',
+  '麻':'ㄇㄚˊ','鮮':'ㄒㄧㄢ','嫩':'ㄋㄣˋ','脆':'ㄘㄨㄟˋ','韌':'ㄖㄣˋ','稠':'ㄔㄡˊ',
+  '濃':'ㄋㄨㄥˊ','淡':'ㄉㄢˋ','鐵':'ㄊㄧㄝˇ','捷':'ㄐㄧㄝˊ','航':'ㄏㄤˊ','港':'ㄍㄤˇ',
+  '隧':'ㄙㄨㄟˋ','堤':'ㄉㄧ','壩':'ㄅㄚˋ','渡':'ㄉㄨˋ','輪':'ㄌㄨㄣˊ','纜':'ㄌㄢˋ',
+  '索':'ㄙㄨㄛˇ','塔':'ㄊㄚˇ','廈':'ㄕㄚˋ','棟':'ㄉㄨㄥˋ','層':'ㄘㄥˊ','梯':'ㄊㄧ',
+  '廊':'ㄌㄤˊ','廳':'ㄊㄧㄥ','廚':'ㄔㄨˊ','衛':'ㄨㄟˋ','浴':'ㄩˋ','陽':'ㄧㄤˊ',
+  '閣':'ㄍㄜˊ','鉛':'ㄑㄧㄢ','橡':'ㄒㄧㄤˋ','擦':'ㄘㄚ','刷':'ㄕㄨㄚ','尺':'ㄔˇ',
+  '規':'ㄍㄨㄟ','儀':'ㄧˊ','簽':'ㄑㄧㄢ','評':'ㄆㄧㄥˊ','批':'ㄆㄧ','閱':'ㄩㄝˋ',
+  '複':'ㄈㄨˋ','測':'ㄘㄜˋ','驗':'ㄧㄢˋ','預':'ㄩˋ','缺':'ㄑㄩㄝ','席':'ㄒㄧˊ',
+  '遲':'ㄔˊ','籃':'ㄌㄢˊ','網':'ㄨㄤˇ','羽':'ㄩˇ','毛':'ㄇㄠˊ','乒':'ㄆㄧㄥ',
+  '乓':'ㄆㄤ','棒':'ㄅㄤˋ','壘':'ㄌㄟˇ','足':'ㄗㄨˊ','橄':'ㄍㄢˇ','欖':'ㄌㄢˇ',
+  '泳':'ㄩㄥˇ','潛':'ㄑㄧㄢˊ','跨':'ㄎㄨㄚˋ','撐':'ㄔㄥ','竿':'ㄍㄢ','摔':'ㄕㄨㄞ',
+  '道':'ㄉㄠˋ','拳':'ㄑㄩㄢˊ','劍':'ㄐㄧㄢˋ','弓':'ㄍㄨㄥ','箭':'ㄐㄧㄢˋ','律':'ㄌㄩˋ',
+  '奏':'ㄗㄡˋ','彈':'ㄊㄢˊ','琴':'ㄑㄧㄣˊ','弦':'ㄒㄧㄢˊ','鍵':'ㄐㄧㄢˋ','笛':'ㄉㄧˊ',
+  '簫':'ㄒㄧㄠ','鼓':'ㄍㄨˇ','鑼':'ㄌㄨㄛˊ','鈸':'ㄅㄛˊ','譜':'ㄆㄨˇ','曲':'ㄑㄩˇ',
+  '演':'ㄧㄢˇ','指':'ㄓˇ','編':'ㄅㄧㄢ','軟':'ㄖㄨㄢˇ','程':'ㄔㄥˊ','式':'ㄕˋ',
+  '碼':'ㄇㄚˇ','訊':'ㄒㄩㄣˋ','頻':'ㄆㄧㄣˊ','率':'ㄌㄩˋ','波':'ㄅㄛ','感':'ㄍㄢˇ',
+  '器':'ㄑㄧˋ','晶':'ㄐㄧㄥ','片':'ㄆㄧㄢˋ','職':'ㄓˊ','薪':'ㄒㄧㄣ','資':'ㄗ',
+  '福':'ㄈㄨˊ','稅':'ㄕㄨㄟˋ','範':'ㄈㄢˋ','制':'ㄓˋ','政':'ㄓㄥˋ','府':'ㄈㄨˇ',
+  '議':'ㄧˋ','員':'ㄩㄢˊ','選':'ㄒㄩㄢˇ','票':'ㄆㄧㄠˋ','候':'ㄏㄡˋ','助':'ㄓㄨˋ',
+  '捐':'ㄐㄩㄢ','獻':'ㄒㄧㄢˋ','慈':'ㄘˊ','凡':'ㄈㄢˊ','則':'ㄗㄜˊ','廢':'ㄈㄟˋ',
+  '夫':'ㄈㄨ','莫':'ㄇㄛˋ','敵':'ㄉㄧˊ','臥':'ㄨㄛˋ','嚐':'ㄔㄤˊ','膽':'ㄉㄢˇ',
+  '破':'ㄆㄛˋ','釜':'ㄈㄨˇ','沉':'ㄔㄣˊ','舟':'ㄓㄡ','陣':'ㄓㄣˋ','葉':'ㄧㄝˋ',
+  '精':'ㄐㄧㄥ','填':'ㄊㄧㄢˊ','守':'ㄕㄡˇ','株':'ㄓㄨ','待':'ㄉㄞˋ','刻':'ㄎㄜˋ',
+  '求':'ㄑㄧㄡˊ','亡':'ㄨㄤˊ','補':'ㄅㄨˇ','牢':'ㄌㄠˊ','狐':'ㄏㄨˊ','威':'ㄨㄟ',
+  '螳':'ㄊㄤˊ','螂':'ㄌㄤˊ','臂':'ㄅㄧˋ','掩':'ㄧㄢˇ','盜':'ㄉㄠˋ','鈴':'ㄌㄧㄥˊ',
+  '弄':'ㄋㄨㄥˋ','斧':'ㄈㄨˇ','鄭':'ㄓㄥˋ','履':'ㄌㄩˇ','矛':'ㄇㄠˊ','盾':'ㄉㄨㄣˋ',
+  '濫':'ㄌㄢˋ','竽':'ㄩˊ','充':'ㄔㄨㄥ',
 };
 
 const ZY_ALT = {
@@ -554,27 +620,20 @@ async function generate() {
     if (!PUNCT.has(ch) && !ZY[ch]) missing.add(ch);
   }));
 
-  // 用萌典 API 查注音（透過 CORS proxy）
+  // 用萌典 API 查注音
   if (missing.size > 0) {
     const btn = document.querySelector('.btn-generate');
     btn.textContent = '⏳ 查詢注音中...';
     btn.disabled = true;
-
-    // 萌典 h[0].t 格式如 "{ㄏㄣˇ}" 需去除大括號
-    function parseMoeZy(raw) {
-      if (!raw) return '';
-      const first = raw.split("'")[0]; // 多音取第一個
-      return first.replace(/[{}`\s]/g, '').trim();
-    }
-
     try {
       await Promise.all([...missing].map(async ch => {
         try {
-          const url = 'https://corsproxy.io/?url=' + encodeURIComponent('https://www.moedict.tw/a/' + ch + '.json');
-          const res = await fetch(url);
+          const res = await fetch(`https://www.moedict.tw/a/${encodeURIComponent(ch)}.json`);
           if (!res.ok) return;
           const data = await res.json();
-          const zy = parseMoeZy(data?.h?.[0]?.t || '');
+          // 取第一個讀音
+          // 萌典：t 是注音，h[0].p 是拼音
+          const zy = data?.t || data?.h?.[0]?.t || '';
           if (zy) ZY[ch] = zy;
         } catch(e) {}
       }));
@@ -663,39 +722,49 @@ function renderZyCol(zyCol, cell) {
   if (!cell.zhuyin || cell.zyHidden || cell.isPunct) return;
 
   const { body, tone } = splitZhuyin(cell.zhuyin);
+  const chars = [...body];
 
-  // 注音本體（聲母+韻母）垂直排列在左側
   const bodyDiv = document.createElement('div');
   bodyDiv.className = 'zy-body';
-  for (const ch of body) {
-    const s = document.createElement('span');
-    s.className = 'zy-sym';
-    s.textContent = ch;
-    bodyDiv.appendChild(s);
-  }
-  zyCol.appendChild(bodyDiv);
 
-  // 聲調：計算垂直位置，對齊到最後一個注音符號旁
-  if (tone) {
+  if (tone === '˙') {
+    // 輕聲：˙ 在最上方單獨一行，然後接所有符號
     const t = document.createElement('span');
     t.className = 'zy-tone';
     t.textContent = tone;
-    // Cell height = 48px, each sym ~13px tall
-    // Body is vertically centered. Calculate tone top based on bodyLen.
-    const cellH = 48;
-    const symH = 13;
-    const bodyLen = [...body].length;
-    const bodyH = bodyLen * symH;
-    const bodyTop = (cellH - bodyH) / 2; // where body starts
-    if (tone === '˙') {
-      // 輕聲在最上方
-      t.style.top = bodyTop + 'px';
-    } else {
-      // 聲調對齊最後一個符號
-      t.style.top = (bodyTop + (bodyLen - 1) * symH) + 'px';
-    }
-    zyCol.appendChild(t);
+    bodyDiv.appendChild(t);
+    chars.forEach(ch => {
+      const s = document.createElement('span');
+      s.className = 'zy-sym';
+      s.textContent = ch;
+      bodyDiv.appendChild(s);
+    });
+  } else {
+    // 一般聲調：符號垂直排列，最後一個符號跟聲調同行
+    chars.forEach((ch, i) => {
+      const isLast = (i === chars.length - 1) && tone;
+      if (isLast) {
+        const row = document.createElement('div');
+        row.className = 'zy-row';
+        const s = document.createElement('span');
+        s.className = 'zy-sym';
+        s.textContent = ch;
+        const t = document.createElement('span');
+        t.className = 'zy-tone';
+        t.textContent = tone;
+        row.appendChild(s);
+        row.appendChild(t);
+        bodyDiv.appendChild(row);
+      } else {
+        const s = document.createElement('span');
+        s.className = 'zy-sym';
+        s.textContent = ch;
+        bodyDiv.appendChild(s);
+      }
+    });
   }
+
+  zyCol.appendChild(bodyDiv);
 }
 
 // ── Popup ──
@@ -710,33 +779,35 @@ function openZyPopup(cell, zyCol) {
   if (cell.zhuyin) readings.push(cell.zhuyin);
   if (cell.zyAlts) cell.zyAlts.forEach(r => { if (!readings.includes(r)) readings.push(r); });
 
-  if (readings.length === 0) {
-    const inp = document.createElement('input');
-    inp.className = 'zy-inp';
-    inp.type = 'text';
-    inp.placeholder = '輸入注音（如：ㄏㄣˇ）';
-    inp.value = cell.zhuyin || '';
-    inp.addEventListener('input', () => {
-      cell.zhuyin = inp.value;
+  // 備選讀音按鈕
+  readings.forEach((r, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'zy-option' + (cell.zhuyin === r && !cell.zyHidden ? ' selected' : '');
+    btn.innerHTML = `${r}<small>${i === 0 ? '本讀' : '讀音 '+(i+1)}</small>`;
+    btn.addEventListener('click', () => {
+      cell.zhuyin = r;
       cell.zyHidden = false;
       renderZyCol(zyCol, cell);
+      opts.querySelectorAll('.zy-option').forEach(o => o.classList.remove('selected'));
+      btn.classList.add('selected');
+      inp.value = r;
     });
-    opts.appendChild(inp);
-  } else {
-    readings.forEach((r, i) => {
-      const btn = document.createElement('div');
-      btn.className = 'zy-option' + (cell.zhuyin === r && !cell.zyHidden ? ' selected' : '');
-      btn.innerHTML = `${r}<small>${i === 0 ? '本讀' : '讀音 '+(i+1)}</small>`;
-      btn.addEventListener('click', () => {
-        cell.zhuyin = r;
-        cell.zyHidden = false;
-        renderZyCol(zyCol, cell);
-        opts.querySelectorAll('.zy-option').forEach(o => o.classList.remove('selected'));
-        btn.classList.add('selected');
-      });
-      opts.appendChild(btn);
-    });
-  }
+    opts.appendChild(btn);
+  });
+
+  // 永遠顯示手動輸入框
+  const inp = document.createElement('input');
+  inp.className = 'zy-inp';
+  inp.type = 'text';
+  inp.placeholder = '手動輸入注音（如：ㄅㄚ˙）';
+  inp.value = cell.zhuyin || '';
+  inp.addEventListener('input', () => {
+    cell.zhuyin = inp.value;
+    cell.zyHidden = false;
+    renderZyCol(zyCol, cell);
+    opts.querySelectorAll('.zy-option').forEach(o => o.classList.remove('selected'));
+  });
+  opts.appendChild(inp);
 
   const rect = zyCol.getBoundingClientRect();
   popup.style.top  = Math.min(rect.top + window.scrollY, window.scrollY + window.innerHeight - 220) + 'px';
