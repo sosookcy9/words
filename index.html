@@ -325,13 +325,21 @@
       size: auto;
       margin: 10mm;
     }
+    /* 防止內容超出單頁 */
+    .grid-container {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .grid-col {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div style="font-size:20px">📝</div>
   <div>
     <h1>語詞考券產生器</h1>
     <p>輸入語詞，自動產生注音國字填空練習</p>
@@ -367,7 +375,7 @@
       </div>
     </div>
 
-    <button class="btn-generate" onclick="generate()">👁 生成預覽</button>
+    <button class="btn-generate" onclick="generate()">生成預覽</button>
   </div>
 
   <div class="preview-panel">
@@ -376,13 +384,13 @@
       <div class="btn-group">
         <button class="btn-sm btn-reveal" onclick="toggleAll(false)">全部顯示</button>
         <button class="btn-sm btn-hide"   onclick="toggleAll(true)">全部隱藏</button>
-        <button class="btn-sm btn-print"  onclick="autoPrintScale()">🖨 列印</button>
+        <button class="btn-sm btn-print"  onclick="autoPrintScale()">列印</button>
       </div>
     </div>
-    <div class="hint">💡 點擊<strong>國字</strong>可切換顯示／隱藏；點擊<strong>注音</strong>可修改或隱藏</div>
+    <div class="hint">點擊<strong>國字</strong>可切換顯示／隱藏；點擊<strong>注音</strong>可修改或隱藏</div>
     <div id="worksheetArea">
       <div class="empty-state">
-        <div class="icon">✏️</div>
+        <div class="icon"></div>
         <p>請輸入語詞後按「生成預覽」</p>
       </div>
     </div>
@@ -656,7 +664,7 @@ async function generate() {
         } catch(e) {}
       }));
     } finally {
-      btn.textContent = '👁 生成預覽';
+      btn.textContent = '生成預覽';
       btn.disabled = false;
     }
   }
