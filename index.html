@@ -16,8 +16,8 @@
     --red: #e05050;
     --green: #4caf7d;
     --border: #ccc;
-    --cell: 48px;   /* 字格大小 */
-    --zy-w: 20px;   /* 注音欄寬度 */
+    --cell: 56px;   /* 字格大小（螢幕預覽） */
+    --zy-w: 22px;   /* 注音欄寬度 */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -143,7 +143,7 @@
   .grid-container {
     display: inline-flex;
     flex-direction: row-reverse;
-    border: 2px solid #333;
+    border: 2px solid #111;
     width: fit-content;
     margin: 0 auto;
   }
@@ -152,7 +152,7 @@
   .grid-col {
     display: flex;
     flex-direction: column;
-    border-left: 1px solid #bbb;
+    border-left: 1.5px solid #111;
   }
   .grid-col:last-child { border-left: none; }
 
@@ -162,12 +162,12 @@
     flex-direction: row;
     width: calc(var(--cell) + var(--zy-w));
     height: var(--cell);
-    border-bottom: 1px solid #bbb;
+    border-bottom: 1.5px solid #111;
     flex-shrink: 0;
   }
   /* 保留所有格子底線，包含最後一格 */
 
-  /* 字格: square with tian zi ge lines */
+  /* 字格: square（無田字虛線） */
   .char-box {
     width: var(--cell);
     height: var(--cell);
@@ -178,34 +178,19 @@
     flex-shrink: 0;
     cursor: pointer;
   }
-  /* 田字格 dotted lines */
-  .char-box::before {
-    content: '';
-    position: absolute;
-    left: 50%; top: 0;
-    width: 1px; height: 100%;
-    background: repeating-linear-gradient(to bottom, #ddd 0, #ddd 3px, transparent 3px, transparent 6px);
-  }
-  .char-box::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 0;
-    height: 1px; width: 100%;
-    background: repeating-linear-gradient(to right, #ddd 0, #ddd 3px, transparent 3px, transparent 6px);
-  }
 
   .cell.punct .char-box { cursor: default; }
 
   .char-inner {
     font-family: 'Noto Serif TC', serif;
-    font-size: 28px;
+    font-size: 34px;
     line-height: 1;
     position: relative;
     z-index: 1;
     user-select: none;
     transition: opacity .12s;
   }
-  .cell.punct .char-inner { font-size: 18px; }
+  .cell.punct .char-inner { font-size: 22px; }
 
   /* Hidden = char invisible only, box stays identical */
   .cell.hidden .char-inner { visibility: hidden; }
@@ -222,7 +207,7 @@
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
-    border-left: 1px solid #eee;
+    border-left: 1px solid #888;
   }
 
   /* 注音符號垂直排列 */
@@ -243,7 +228,7 @@
 
   .zy-sym {
     font-family: 'Noto Serif TC', serif;
-    font-size: 10px;
+    font-size: 11px;
     color: #222;
     user-select: none;
     display: block;
@@ -253,7 +238,7 @@
   /* 聲調緊貼最後符號右側 */
   .zy-tone {
     font-family: 'Noto Serif TC', serif;
-    font-size: 9px;
+    font-size: 10px;
     color: #222;
     user-select: none;
     display: block;
@@ -295,11 +280,11 @@
     font-family: 'Noto Serif TC', serif;
   }
   .zy-btn-hide {
-    width: 100%; padding: 8px; background: var(--red); color: white;
+    width: 100%; padding: 8px; background: var(--green); color: white;
     border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
     font-family: 'Noto Sans TC', sans-serif;
   }
-  .zy-btn-hide:hover { background: #c04040; }
+  .zy-btn-hide:hover { background: #3a9463; }
 
   @media print {
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -328,9 +313,13 @@
       break-inside: avoid;
     }
     :root {
-      --cell: 42px;
-      --zy-w: 17px;
+      --cell: 20mm;
+      --zy-w: 8mm;
     }
+    .char-inner { font-size: 14mm !important; }
+    .cell.punct .char-inner { font-size: 9mm !important; }
+    .zy-sym { font-size: 4mm !important; }
+    .zy-tone { font-size: 3.5mm !important; }
     @page {
       size: A4 landscape;
       margin: 10mm;
@@ -395,7 +384,7 @@
 <div class="zy-popup" id="zyPopup">
   <h4 id="zyPopupTitle">選擇注音</h4>
   <div class="zy-options" id="zyOptions"></div>
-  <button class="zy-btn-hide" onclick="hideZhuyin()">隱藏注音</button>
+  <button class="zy-btn-hide" onclick="document.getElementById('zyPopup').classList.remove('open')">確定</button>
 </div>
 
 <script>
