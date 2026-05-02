@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>語詞考券產生器</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500&display=swap');
@@ -313,10 +313,13 @@
     .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
     .preview-panel { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; margin: 0 !important; }
     .worksheet-wrap {
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      overflow: visible;
+      overflow: visible !important;
+      text-align: right;
+      width: auto !important;
+    }
+    .grid-container {
+      margin: 0 0 0 auto !important;
+      display: inline-flex !important;
     }
     @page {
       size: auto;
