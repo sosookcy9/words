@@ -320,19 +320,20 @@
     .grid-container {
       margin: 0 0 0 auto !important;
       display: inline-flex !important;
-    }
-    @page {
-      size: auto;
-      margin: 10mm;
-    }
-    /* 防止內容超出單頁 */
-    .grid-container {
       page-break-inside: avoid;
       break-inside: avoid;
     }
     .grid-col {
       page-break-inside: avoid;
       break-inside: avoid;
+    }
+    :root {
+      --cell: 42px;
+      --zy-w: 17px;
+    }
+    @page {
+      size: A4 landscape;
+      margin: 10mm;
     }
   }
 </style>
@@ -357,20 +358,13 @@
     </div>
 
     <div class="row">
-      <div class="col">
+      <div class="col" style="max-width:180px">
         <label>每列字數</label>
         <select id="colCount">
           <option value="10">10 字</option>
           <option value="12" selected>12 字</option>
           <option value="14">14 字</option>
           <option value="16">16 字</option>
-        </select>
-      </div>
-      <div class="col">
-        <label>國字初始狀態</label>
-        <select id="charMode">
-          <option value="show">全部顯示</option>
-          <option value="hide">全部隱藏（填空）</option>
         </select>
       </div>
     </div>
@@ -390,7 +384,6 @@
     <div class="hint">點擊<strong>國字</strong>可切換顯示／隱藏；點擊<strong>注音</strong>可修改或隱藏</div>
     <div id="worksheetArea">
       <div class="empty-state">
-        <div class="icon"></div>
         <p>請輸入語詞後按「生成預覽」</p>
       </div>
     </div>
@@ -636,7 +629,6 @@ function layoutColumns(cells, colLen) {
 async function generate() {
   const raw = document.getElementById('wordsInput').value;
   const colLen = parseInt(document.getElementById('colCount').value);
-  const charMode = document.getElementById('charMode').value;
   const words = parseWords(raw);
   if (!words.length) { alert('請輸入至少一個語詞！'); return; }
 
@@ -646,23 +638,25 @@ async function generate() {
     if (!PUNCT.has(ch) && !ZY[ch]) missing.add(ch);
   }));
 
-  // 用萌典 API 查注音
+  // 用萌典 API 查注音（有 localStorage 快取）
   if (missing.size > 0) {
     const btn = document.querySelector('.btn-generate');
-    btn.textContent = '⏳ 查詢注音中...';
+    btn.textContent = '查詢注音中...';
     btn.disabled = true;
     try {
+      let cache = {};
+      try { cache = JSON.parse(localStorage.getItem('zyCache') || '{}'); } catch(e) {}
       await Promise.all([...missing].map(async ch => {
+        if (cache[ch]) { ZY[ch] = cache[ch]; return; }
         try {
           const res = await fetch(`https://www.moedict.tw/a/${encodeURIComponent(ch)}.json`);
           if (!res.ok) return;
           const data = await res.json();
-          // 取第一個讀音
-          // 萌典：t 是注音，h[0].p 是拼音
           const zy = data?.t || data?.h?.[0]?.t || '';
-          if (zy) ZY[ch] = zy;
+          if (zy) { ZY[ch] = zy; cache[ch] = zy; }
         } catch(e) {}
       }));
+      try { localStorage.setItem('zyCache', JSON.stringify(cache)); } catch(e) {}
     } finally {
       btn.textContent = '生成預覽';
       btn.disabled = false;
@@ -671,7 +665,7 @@ async function generate() {
 
   const cells = buildCells(words);
   cells.forEach(c => {
-    c.hidden = charMode === 'hide' && !c.isPunct;
+    c.hidden = false;
     c.zyHidden = false;
   });
   const cols = layoutColumns(cells, colLen);
@@ -696,12 +690,14 @@ function renderWorksheet(cols) {
 
   wrap.appendChild(grid);
   area.appendChild(wrap);
-  document.addEventListener('click', e => {
-    if (!document.getElementById('zyPopup').contains(e.target)) {
-      document.getElementById('zyPopup').classList.remove('open');
-    }
-  });
 }
+
+// 只加一次 click 監聽（避免每次 render 累加）
+document.addEventListener('click', e => {
+  if (!document.getElementById('zyPopup').contains(e.target)) {
+    document.getElementById('zyPopup').classList.remove('open');
+  }
+});
 
 function buildCellEl(cell) {
   const cellEl = document.createElement('div');
@@ -832,6 +828,10 @@ function openZyPopup(cell, zyCol) {
     cell.zyHidden = false;
     renderZyCol(zyCol, cell);
     opts.querySelectorAll('.zy-option').forEach(o => o.classList.remove('selected'));
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { popup.classList.remove('open'); }
+    if (e.key === 'Escape') { popup.classList.remove('open'); }
   });
   opts.appendChild(inp);
 
