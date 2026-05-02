@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>語詞考券產生器</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500&display=swap');
 
   :root {
     --gold: #f5c842;
@@ -14,12 +14,10 @@
     --ink: #1a1a1a;
     --ink-light: #555;
     --red: #e05050;
-    --blue: #4a90d9;
     --green: #4caf7d;
-    --border: #ddd;
-    --cell: 52px;
-    --zy-body-w: 14px;
-    --zy-tone-w: 10px;
+    --border: #ccc;
+    --cell: 48px;   /* 字格大小 */
+    --zy-w: 16px;   /* 注音欄寬度 */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,42 +29,33 @@
     color: var(--ink);
   }
 
-  /* ── Header ── */
   header {
     background: white;
     border-bottom: 3px solid var(--gold);
-    padding: 16px 24px;
+    padding: 14px 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
   }
-  .logo { font-size: 22px; }
-  header h1 {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  header p { font-size: 12px; color: var(--ink-light); margin-top: 2px; }
+  header h1 { font-family: 'Noto Serif TC', serif; font-size: 17px; font-weight: 700; }
+  header p  { font-size: 11px; color: var(--ink-light); margin-top: 2px; }
 
-  /* ── Layout ── */
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+  .container { max-width: 860px; margin: 0 auto; padding: 20px 14px; }
 
-  /* ── Input Panel ── */
   .panel {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 16px rgba(0,0,0,.08);
-    margin-bottom: 24px;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.08);
+    margin-bottom: 20px;
   }
   .panel h2 {
     font-family: 'Noto Serif TC', serif;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     margin-bottom: 14px;
     display: flex;
@@ -76,326 +65,239 @@
   .panel h2::before {
     content: '';
     display: inline-block;
-    width: 4px; height: 18px;
+    width: 4px; height: 16px;
     background: var(--gold);
     border-radius: 2px;
   }
 
-  label { font-size: 13px; color: var(--ink-light); display: block; margin-bottom: 6px; }
-
-  input[type=text], textarea {
+  label { font-size: 12px; color: var(--ink-light); display: block; margin-bottom: 5px; }
+  textarea {
     width: 100%;
     border: 1.5px solid var(--border);
     border-radius: 8px;
-    padding: 10px 14px;
+    padding: 10px 12px;
     font-family: 'Noto Sans TC', sans-serif;
     font-size: 14px;
     outline: none;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.8;
     transition: border .2s;
   }
-  input[type=text]:focus, textarea:focus { border-color: var(--gold); }
-  textarea { resize: vertical; min-height: 90px; line-height: 1.8; }
+  textarea:focus { border-color: var(--gold); }
 
-  .row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .row .col { flex: 1; min-width: 160px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .col { flex: 1; min-width: 140px; }
 
   select {
+    width: 100%;
     border: 1.5px solid var(--border);
     border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 14px;
+    padding: 9px 12px;
+    font-size: 13px;
     background: white;
     outline: none;
-    width: 100%;
   }
 
   .btn-generate {
     width: 100%;
-    margin-top: 18px;
-    padding: 14px;
+    margin-top: 16px;
+    padding: 13px;
     background: var(--gold);
     border: none;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     font-family: 'Noto Serif TC', serif;
     cursor: pointer;
     transition: background .2s, transform .1s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn-generate:hover { background: #e8b800; transform: translateY(-1px); }
-  .btn-generate:active { transform: translateY(0); }
+  .btn-generate:disabled { opacity: .6; cursor: default; transform: none; }
 
-  /* ── Preview Panel ── */
-  .preview-panel {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 16px rgba(0,0,0,.08);
-  }
+  /* Preview */
+  .preview-panel { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 14px rgba(0,0,0,.08); }
+  .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .preview-title { font-family: 'Noto Serif TC', serif; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .preview-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--gold); border-radius: 2px; }
 
-  .preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .preview-title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 15px;
-    font-weight: 700;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .preview-title::before {
-    content: '';
-    display: inline-block;
-    width: 4px; height: 18px;
-    background: var(--gold);
-    border-radius: 2px;
-  }
-  .preview-info { font-size: 12px; color: var(--ink-light); }
+  .hint { background: var(--gold-pale); border: 1px solid #f0d860; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #7a6a00; margin-bottom: 14px; }
 
-  .hint {
-    background: var(--gold-pale);
-    border: 1px solid #f0d860;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 12px;
-    color: #7a6a00;
-    margin-bottom: 16px;
-  }
-
-  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .btn-sm {
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: 'Noto Sans TC', sans-serif;
-    cursor: pointer;
-    border: none;
-    transition: background .2s;
-    font-weight: 500;
+    padding: 6px 12px; border-radius: 7px; font-size: 12px;
+    font-family: 'Noto Sans TC', sans-serif; cursor: pointer; border: none;
+    transition: background .2s; font-weight: 500;
   }
-  .btn-save { background: #2d7a4f; color: white; }
-  .btn-save:hover { background: #245f3d; }
   .btn-print { background: #3a6db5; color: white; }
   .btn-print:hover { background: #2e58a0; }
-  .btn-reveal-all { background: #f0f0f0; color: var(--ink); }
-  .btn-reveal-all:hover { background: #e0e0e0; }
-  .btn-hide-all { background: #f0f0f0; color: var(--ink); }
-  .btn-hide-all:hover { background: #e0e0e0; }
+  .btn-reveal { background: #f0f0f0; color: var(--ink); }
+  .btn-reveal:hover { background: #e0e0e0; }
+  .btn-hide { background: #f0f0f0; color: var(--ink); }
+  .btn-hide:hover { background: #e0e0e0; }
 
-  /* ── Worksheet Grid ── */
+  /* ── WORKSHEET GRID ── */
   .worksheet-wrap { overflow-x: auto; }
 
-  .worksheet-title {
-    text-align: center;
-    font-family: 'Noto Serif TC', serif;
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    margin-top: 8px;
-  }
-  .worksheet-subtitle {
-    text-align: center;
-    font-size: 12px;
-    color: var(--ink-light);
-    margin-bottom: 16px;
-  }
-
-  /* Traditional vertical writing grid */
+  /* Outer grid: columns go right to left (traditional vertical) */
   .grid-container {
-    display: flex;
-    flex-direction: row-reverse; /* vertical columns go right to left */
-    gap: 0;
-    border: 2px solid var(--ink);
+    display: inline-flex;
+    flex-direction: row-reverse;
+    border: 2px solid #333;
     width: fit-content;
     margin: 0 auto;
   }
 
-  .grid-column {
+  /* Each column is a vertical strip */
+  .grid-col {
     display: flex;
     flex-direction: column;
     border-left: 1px solid #bbb;
   }
-  .grid-column:last-child { border-left: none; }
+  .grid-col:last-child { border-left: none; }
 
-  /* Each cell can hold a character + zhuyin */
+  /* Each cell = 字格 + 注音欄 side by side */
   .cell {
-    width: calc(var(--cell) + var(--zy-body-w) + var(--zy-tone-w));
-    height: var(--cell);
-    border-bottom: 1px solid #ccc;
-    position: relative;
     display: flex;
     flex-direction: row;
-    align-items: stretch;
+    width: calc(var(--cell) + var(--zy-w));
+    height: var(--cell);
+    border-bottom: 1px solid #bbb;
     flex-shrink: 0;
-    cursor: default;
-    overflow: hidden;
   }
   .cell:last-child { border-bottom: none; }
 
-  /* Character area */
+  /* 字格: square with tian zi ge lines */
   .char-box {
     width: var(--cell);
     height: var(--cell);
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     flex-shrink: 0;
-    flex-grow: 0;
+    cursor: pointer;
   }
-
-  /* Tian zi ge (田字格) grid lines inside char cell */
-  .char-box::before, .char-box::after {
+  /* 田字格 dotted lines */
+  .char-box::before {
     content: '';
     position: absolute;
-    background: #ddd;
+    left: 50%; top: 0;
+    width: 1px; height: 100%;
+    background: repeating-linear-gradient(to bottom, #ddd 0, #ddd 3px, transparent 3px, transparent 6px);
   }
-  .char-box::before { width: 1px; height: 100%; left: 50%; top: 0; }
-  .char-box::after  { height: 1px; width: 100%; top: 50%; left: 0; }
+  .char-box::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0;
+    height: 1px; width: 100%;
+    background: repeating-linear-gradient(to right, #ddd 0, #ddd 3px, transparent 3px, transparent 6px);
+  }
+
+  .cell.punct .char-box { cursor: default; }
 
   .char-inner {
     font-family: 'Noto Serif TC', serif;
-    font-size: 30px;
+    font-size: 28px;
     line-height: 1;
     position: relative;
     z-index: 1;
     user-select: none;
-    transition: opacity .15s;
+    transition: opacity .12s;
   }
+  .cell.punct .char-inner { font-size: 18px; }
 
-  /* Clickable character */
-  .cell.has-char .char-box {
-    cursor: pointer;
-  }
-  .cell.has-char .char-box:hover .char-inner {
-    opacity: .6;
-  }
-
-  /* Hidden state */
+  /* Hidden = pink bg, char invisible */
+  .cell.hidden .char-box { background: #fadadd; }
   .cell.hidden .char-inner { opacity: 0; }
-  .cell.hidden .char-box { background: #f9d4d4; }
 
-  /* Punctuation */
-  .cell.punct .char-inner { font-size: 20px; }
-  .cell.punct .char-box { cursor: default; }
+  .char-box:not(.no-hover):hover .char-inner { opacity: .5; }
 
-  /* Blank fill cell */
-  .cell.blank-fill .char-box { background: #f0f7ff; border: 1.5px dashed #aac; }
-
-  /* Zhuyin area - two sub-columns: body + tone */
-  .zhuyin-col {
-    width: calc(var(--zy-body-w) + var(--zy-tone-w));
+  /* 注音欄: narrow column to the right of 字格 */
+  .zy-col {
+    width: var(--zy-w);
     height: var(--cell);
     display: flex;
-    flex-direction: row;
-    align-items: stretch;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
     cursor: pointer;
     flex-shrink: 0;
   }
 
+  /* 注音符號 (consonant + vowel) stack top-to-bottom in left portion */
   .zy-body {
-    width: var(--zy-body-w);
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding-top: 3px;
-  }
-
-  .zy-tone {
-    width: var(--zy-tone-w);
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
     justify-content: center;
-    padding-bottom: 3px;
+    width: 10px;
+    height: 100%;
   }
 
-  .zy-char {
-    font-size: 11px;
-    line-height: 1.15;
-    color: #333;
-    font-family: 'Noto Sans TC', sans-serif;
+  .zy-sym {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 10.5px;
+    line-height: 1.25;
+    color: #222;
     user-select: none;
+    display: block;
+    text-align: center;
   }
 
-  .zy-tone-char {
-    font-size: 11px;
+  /* 聲調: sits in the right sub-column, vertically centered with body */
+  .zy-tone {
+    position: absolute;
+    right: 0px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 10px;
+    color: #222;
+    user-select: none;
     line-height: 1;
-    color: #333;
-    font-family: 'Noto Sans TC', sans-serif;
-    user-select: none;
   }
 
-  /* Zhuyin popup */
+  /* Empty state */
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--ink-light); }
+  .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* Popup */
   .zy-popup {
     position: fixed;
     background: white;
     border: 1.5px solid #ddd;
     border-radius: 12px;
     padding: 14px;
-    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    box-shadow: 0 8px 28px rgba(0,0,0,.16);
     z-index: 999;
-    min-width: 180px;
+    min-width: 170px;
     display: none;
   }
   .zy-popup.open { display: block; }
-  .zy-popup h4 {
-    font-size: 13px;
-    margin-bottom: 10px;
-    color: var(--ink-light);
-    text-align: center;
-  }
-  .zy-options { display: flex; gap: 8px; margin-bottom: 10px; }
+  .zy-popup h4 { font-size: 13px; margin-bottom: 10px; color: var(--ink-light); text-align: center; }
+  .zy-options { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
   .zy-option {
-    flex: 1;
-    padding: 8px 4px;
-    border: 1.5px solid #ccc;
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 15px;
+    flex: 1; min-width: 60px;
+    padding: 7px 4px; border: 1.5px solid #ccc; border-radius: 8px;
+    text-align: center; cursor: pointer; font-size: 14px;
     transition: border-color .2s, background .2s;
+    font-family: 'Noto Serif TC', serif;
   }
   .zy-option:hover { border-color: var(--gold); background: var(--gold-pale); }
   .zy-option.selected { border-color: var(--green); background: #edfaf3; }
-  .zy-option small { display: block; font-size: 10px; color: var(--ink-light); margin-top: 2px; }
+  .zy-option small { display: block; font-size: 10px; color: var(--ink-light); margin-top: 2px; font-family: 'Noto Sans TC', sans-serif; }
+  .zy-inp {
+    width: 100%; padding: 6px 10px; border: 1.5px solid #ccc;
+    border-radius: 6px; font-size: 14px; margin-bottom: 8px;
+    font-family: 'Noto Serif TC', serif;
+  }
   .zy-btn-hide {
-    width: 100%;
-    padding: 8px;
-    background: var(--red);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
+    width: 100%; padding: 8px; background: var(--red); color: white;
+    border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
     font-family: 'Noto Sans TC', sans-serif;
   }
   .zy-btn-hide:hover { background: #c04040; }
 
-  /* Separator row */
-  .sep-row {
-    height: 4px;
-    background: var(--gold);
-    flex-shrink: 0;
-  }
-
-  /* Empty area */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--ink-light);
-  }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; }
-
-  /* ── Print ── */
   @media print {
     header, .panel, .hint, .btn-group, .preview-header .btn-group { display: none !important; }
     body { background: white; }
@@ -407,7 +309,7 @@
 <body>
 
 <header>
-  <div class="logo">📝</div>
+  <div style="font-size:20px">📝</div>
   <div>
     <h1>語詞考券產生器</h1>
     <p>輸入語詞，自動產生注音國字填空練習</p>
@@ -416,28 +318,15 @@
 
 <div class="container">
 
-  <!-- Input Panel -->
   <div class="panel">
     <h2>設定考券</h2>
 
-    <div style="margin-bottom:14px">
-      <label>考券標題</label>
-      <input type="text" id="titleInput" value="語詞練習" placeholder="例：第三課語詞考券">
-    </div>
-
-    <div style="margin-bottom:14px">
+    <div style="margin-bottom:12px">
       <label>輸入語詞（以句號、逗號、空格或換行分隔）</label>
-      <textarea id="wordsInput" placeholder="例：悄悄話。神秘。小白兔。其他。猴子。生病。探望。身體。可惜。無法。辦法。挖坑。之後。請客。鼻子。吸水。一模一樣。度過。"></textarea>
+      <textarea id="wordsInput" placeholder="例：悄悄話。神秘。小白兔。猴子。生病。探望。身體。"></textarea>
     </div>
 
     <div class="row">
-      <div class="col">
-        <label>顯示注音</label>
-        <select id="zhuyinMode">
-          <option value="show">顯示注音</option>
-          <option value="hide">隱藏注音</option>
-        </select>
-      </div>
       <div class="col">
         <label>每列字數</label>
         <select id="colCount">
@@ -456,30 +345,23 @@
       </div>
     </div>
 
-    <button class="btn-generate" onclick="generate()">
-      👁 生成預覽
-    </button>
+    <button class="btn-generate" onclick="generate()">👁 生成預覽</button>
   </div>
 
-  <!-- Preview Panel -->
-  <div class="preview-panel" id="previewPanel">
+  <div class="preview-panel">
     <div class="preview-header">
       <div class="preview-title">預覽</div>
       <div class="btn-group">
-        <button class="btn-sm btn-reveal-all" onclick="toggleAll(false)">全部顯示</button>
-        <button class="btn-sm btn-hide-all" onclick="toggleAll(true)">全部隱藏</button>
-        <button class="btn-sm btn-print" onclick="window.print()">🖨 列印</button>
+        <button class="btn-sm btn-reveal" onclick="toggleAll(false)">全部顯示</button>
+        <button class="btn-sm btn-hide"   onclick="toggleAll(true)">全部隱藏</button>
+        <button class="btn-sm btn-print"  onclick="window.print()">🖨 列印</button>
       </div>
     </div>
-
-    <div class="hint">
-      💡 點擊<strong>國字</strong>可切換顯示／隱藏（製作填空題）；點擊<strong>注音</strong>可修改或移除注音
-    </div>
-
+    <div class="hint">💡 點擊<strong>國字</strong>可切換顯示／隱藏；點擊<strong>注音</strong>可修改或隱藏</div>
     <div id="worksheetArea">
       <div class="empty-state">
         <div class="icon">✏️</div>
-        <p>請在上方輸入語詞，點擊「生成預覽」</p>
+        <p>請輸入語詞後按「生成預覽」</p>
       </div>
     </div>
   </div>
@@ -494,204 +376,247 @@
 </div>
 
 <script>
-// ── Zhuyin database (simplified; covers common vocab) ──
+// ── Zhuyin Database ──
 const ZY = {
-  // 2-char or more handled by word lookup; single-char fallback
-  '悄':'ㄑㄧㄠˇ','話':'ㄏㄨㄚˋ','神':'ㄕㄣˊ','秘':'ㄇㄧˋ','小':'ㄒㄧㄠˇ',
-  '白':'ㄅㄞˊ','兔':'ㄊㄨˋ','其':'ㄑㄧˊ','他':'ㄊㄚ','猴':'ㄏㄡˊ','子':'ㄗˇ',
-  '生':'ㄕㄥ','病':'ㄅㄧㄥˋ','探':'ㄊㄢˋ','望':'ㄨㄤˋ','身':'ㄕㄣ','體':'ㄊㄧˇ',
-  '可':'ㄎㄜˇ','惜':'ㄒㄧ','無':'ㄨˊ','法':'ㄈㄚˇ','辦':'ㄅㄢˋ','挖':'ㄨㄚ',
-  '坑':'ㄎㄥ','之':'ㄓ','後':'ㄏㄡˋ','請':'ㄑㄧㄥˇ','客':'ㄎㄜˋ','鼻':'ㄅㄧˊ',
-  '吸':'ㄒㄧ','水':'ㄕㄨㄟˇ','一':'ㄧ','模':'ㄇㄡˊ','樣':'ㄧㄤˋ','度':'ㄉㄨˋ',
-  '過':'ㄍㄨㄛˋ','很':'ㄏㄣˇ','久':'ㄐㄧㄡˇ','條':'ㄊㄧㄠˊ','辦':'ㄅㄢˋ',
-  '大':'ㄉㄚˋ','中':'ㄓㄨㄥ','小':'ㄒㄧㄠˇ','人':'ㄖㄣˊ','山':'ㄕㄢ','水':'ㄕㄨㄟˇ',
-  '火':'ㄏㄨㄛˇ','木':'ㄇㄨˋ','土':'ㄊㄨˇ','金':'ㄐㄧㄣ','日':'ㄖˋ','月':'ㄩㄝˋ',
-  '天':'ㄊㄧㄢ','地':'ㄉㄧˋ','風':'ㄈㄥ','雨':'ㄩˇ','雪':'ㄒㄩㄝˇ','花':'ㄏㄨㄚ',
-  '草':'ㄘㄠˇ','鳥':'ㄋㄧㄠˇ','魚':'ㄩˊ','馬':'ㄇㄚˇ','牛':'ㄋㄧㄡˊ','羊':'ㄧㄤˊ',
-  '狗':'ㄍㄡˇ','貓':'ㄇㄠ','跑':'ㄆㄠˇ','走':'ㄗㄡˇ','飛':'ㄈㄟ','跳':'ㄊㄧㄠˋ',
-  '唱':'ㄔㄤˋ','笑':'ㄒㄧㄠˋ','哭':'ㄎㄨ','說':'ㄕㄨㄛ','看':'ㄎㄢˋ','聽':'ㄊㄧㄥ',
-  '吃':'ㄔ','喝':'ㄏㄜ','玩':'ㄨㄢˊ','學':'ㄒㄩㄝˊ','教':'ㄐㄧㄠ','書':'ㄕㄨ',
-  '家':'ㄐㄧㄚ','朋':'ㄆㄥˊ','友':'ㄧㄡˇ','愛':'ㄞˋ','心':'ㄒㄧㄣ','手':'ㄕㄡˇ',
-  '眼':'ㄧㄢˇ','耳':'ㄦˇ','口':'ㄎㄡˇ','頭':'ㄊㄡˊ','腳':'ㄐㄧㄠˇ','開':'ㄎㄞ',
-  '關':'ㄍㄨㄢ','上':'ㄕㄤˋ','下':'ㄒㄧㄚˋ','左':'ㄗㄨㄛˇ','右':'ㄧㄡˋ','前':'ㄑㄧㄢˊ',
-  '長':'ㄔㄤˊ','短':'ㄉㄨㄢˇ','高':'ㄍㄠ','低':'ㄉㄧ','多':'ㄉㄨㄛ','少':'ㄕㄠˇ',
-  '好':'ㄏㄠˇ','壞':'ㄏㄨㄞˋ','新':'ㄒㄧㄣ','舊':'ㄐㄧㄡˋ','快':'ㄎㄨㄞˋ','慢':'ㄇㄢˋ',
-  '紅':'ㄏㄨㄥˊ','綠':'ㄌㄩˋ','藍':'ㄌㄢˊ','黃':'ㄏㄨㄤˊ','黑':'ㄏㄟ','白':'ㄅㄞˊ',
-  '早':'ㄗㄠˇ','晚':'ㄨㄢˇ','今':'ㄐㄧㄣ','年':'ㄋㄧㄢˊ','月':'ㄩㄝˋ','日':'ㄖˋ',
-  '春':'ㄔㄨㄣ','夏':'ㄒㄧㄚˋ','秋':'ㄑㄧㄡ','冬':'ㄉㄨㄥ',
+  '一':'ㄧ','二':'ㄦˋ','三':'ㄙㄢ','四':'ㄙˋ','五':'ㄨˇ','六':'ㄌㄧㄡˋ',
+  '七':'ㄑㄧ','八':'ㄅㄚ','九':'ㄐㄧㄡˇ','十':'ㄕˊ','百':'ㄅㄞˇ','千':'ㄑㄧㄢ',
+  '萬':'ㄨㄢˋ','零':'ㄌㄧㄥˊ','人':'ㄖㄣˊ','大':'ㄉㄚˋ','小':'ㄒㄧㄠˇ','中':'ㄓㄨㄥ',
+  '上':'ㄕㄤˋ','下':'ㄒㄧㄚˋ','左':'ㄗㄨㄛˇ','右':'ㄧㄡˋ','前':'ㄑㄧㄢˊ','後':'ㄏㄡˋ',
+  '東':'ㄉㄨㄥ','西':'ㄒㄧ','南':'ㄋㄢˊ','北':'ㄅㄟˇ','內':'ㄋㄟˋ','外':'ㄨㄞˋ',
+  '裡':'ㄌㄧˇ','旁':'ㄆㄤˊ','遠':'ㄩㄢˇ','近':'ㄐㄧㄣˋ','高':'ㄍㄠ','低':'ㄉㄧ',
+  '間':'ㄐㄧㄢ','你':'ㄋㄧˇ','我':'ㄨㄛˇ','他':'ㄊㄚ','她':'ㄊㄚ','它':'ㄊㄚ',
+  '們':'ㄇㄣ˙','自':'ㄗˋ','己':'ㄐㄧˇ','誰':'ㄕㄟˊ','爺':'ㄧㄝˊ','奶':'ㄋㄞˇ',
+  '爸':'ㄅㄚˋ','媽':'ㄇㄚ','哥':'ㄍㄜ','姐':'ㄐㄧㄝˇ','弟':'ㄉㄧˋ','妹':'ㄇㄟˋ',
+  '叔':'ㄕㄨˊ','伯':'ㄅㄛˊ','姑':'ㄍㄨ','舅':'ㄐㄧㄡˋ','姨':'ㄧˊ','兒':'ㄦˊ',
+  '子':'ㄗˇ','女':'ㄋㄩˇ','孫':'ㄙㄨㄣ','夫':'ㄈㄨ','妻':'ㄑㄧ','親':'ㄑㄧㄣ',
+  '族':'ㄗㄨˊ','家':'ㄐㄧㄚ','鄰':'ㄌㄧㄣˊ','居':'ㄐㄩ','天':'ㄊㄧㄢ','地':'ㄉㄜ˙',
+  '日':'ㄖˋ','月':'ㄩㄝˋ','星':'ㄒㄧㄥ','山':'ㄕㄢ','水':'ㄕㄨㄟˇ','火':'ㄏㄨㄛˇ',
+  '木':'ㄇㄨˋ','土':'ㄊㄨˇ','金':'ㄐㄧㄣ','石':'ㄕˊ','風':'ㄈㄥ','雨':'ㄩˇ',
+  '雪':'ㄒㄩㄝˇ','雲':'ㄩㄣˊ','電':'ㄉㄧㄢˋ','雷':'ㄌㄟˊ','光':'ㄍㄨㄤ','空':'ㄎㄨㄥ',
+  '海':'ㄏㄞˇ','河':'ㄏㄜˊ','湖':'ㄏㄨˊ','溪':'ㄒㄧ','林':'ㄌㄧㄣˊ','森':'ㄙㄣ',
+  '草':'ㄘㄠˇ','花':'ㄏㄨㄚ','葉':'ㄧㄝˋ','樹':'ㄕㄨˋ','根':'ㄍㄣ','泥':'ㄋㄧˊ',
+  '沙':'ㄕㄚ','田':'ㄊㄧㄢˊ','園':'ㄩㄢˊ','農':'ㄋㄨㄥˊ','種':'ㄓㄨㄥˇ','果':'ㄍㄨㄛˇ',
+  '春':'ㄔㄨㄣ','夏':'ㄒㄧㄚˋ','秋':'ㄑㄧㄡ','冬':'ㄉㄨㄥ','冷':'ㄌㄥˇ','熱':'ㄖㄜˋ',
+  '暖':'ㄋㄨㄢˇ','涼':'ㄌㄧㄤˊ','晴':'ㄑㄧㄥˊ','季':'ㄐㄧˋ','貓':'ㄇㄠ','狗':'ㄍㄡˇ',
+  '鳥':'ㄋㄧㄠˇ','魚':'ㄩˊ','馬':'ㄇㄚˇ','牛':'ㄋㄧㄡˊ','羊':'ㄧㄤˊ','豬':'ㄓㄨ',
+  '雞':'ㄐㄧ','鴨':'ㄧㄚ','兔':'ㄊㄨˋ','蛇':'ㄕㄜˊ','蛙':'ㄨㄚ','熊':'ㄒㄩㄥˊ',
+  '象':'ㄒㄧㄤˋ','獅':'ㄕ','虎':'ㄏㄨˇ','狼':'ㄌㄤˊ','鹿':'ㄌㄨˋ','猴':'ㄏㄡˊ',
+  '蜂':'ㄈㄥ','蜜':'ㄇㄧˋ','蟲':'ㄔㄨㄥˊ','螞':'ㄇㄚˇ','蟻':'ㄧˇ','蝴':'ㄏㄨˊ',
+  '蝶':'ㄉㄧㄝˊ','鯨':'ㄐㄧㄥ','蝦':'ㄒㄧㄚ','蟹':'ㄒㄧㄝˋ','頭':'ㄊㄡˊ','臉':'ㄌㄧㄢˇ',
+  '眼':'ㄧㄢˇ','耳':'ㄦˇ','鼻':'ㄅㄧˊ','嘴':'ㄗㄨㄟˇ','口':'ㄎㄡˇ','牙':'ㄧㄚˊ',
+  '舌':'ㄕㄜˊ','頸':'ㄐㄧㄥˇ','手':'ㄕㄡˇ','腳':'ㄐㄧㄠˇ','腿':'ㄊㄨㄟˇ','背':'ㄅㄟˋ',
+  '胸':'ㄒㄩㄥ','肚':'ㄉㄨˋ','肩':'ㄐㄧㄢ','骨':'ㄍㄨˇ','皮':'ㄆㄧˊ','血':'ㄒㄧㄝˇ',
+  '心':'ㄒㄧㄣ','肺':'ㄈㄟˋ','胃':'ㄨㄟˋ','腦':'ㄋㄠˇ','髮':'ㄈㄚˋ','眉':'ㄇㄟˊ',
+  '指':'ㄓˇ','身':'ㄕㄣ','體':'ㄊㄧˇ','膚':'ㄈㄨ','紅':'ㄏㄨㄥˊ','橙':'ㄔㄥˊ',
+  '黃':'ㄏㄨㄤˊ','綠':'ㄌㄩˋ','藍':'ㄌㄢˊ','紫':'ㄗˇ','黑':'ㄏㄟ','白':'ㄅㄞˊ',
+  '灰':'ㄏㄨㄟ','棕':'ㄗㄨㄥ','彩':'ㄘㄞˇ','色':'ㄙㄜˋ','今':'ㄐㄧㄣ','昨':'ㄗㄨㄛˊ',
+  '明':'ㄇㄧㄥˊ','年':'ㄋㄧㄢˊ','時':'ㄕˊ','分':'ㄈㄣ','早':'ㄗㄠˇ','晚':'ㄨㄢˇ',
+  '午':'ㄨˇ','夜':'ㄧㄝˋ','週':'ㄓㄨㄟ','期':'ㄑㄧˊ','秒':'ㄇㄧㄠˇ','節':'ㄐㄧㄝˊ',
+  '假':'ㄐㄧㄚˇ','學':'ㄒㄩㄝˊ','校':'ㄒㄧㄠˋ','老':'ㄌㄠˇ','師':'ㄕ','同':'ㄊㄨㄥˊ',
+  '班':'ㄅㄢ','課':'ㄎㄜˋ','書':'ㄕㄨ','本':'ㄅㄣˇ','筆':'ㄅㄧˇ','紙':'ㄓˇ',
+  '字':'ㄗˋ','文':'ㄨㄣˊ','語':'ㄩˇ','詞':'ㄘˊ','題':'ㄊㄧˊ','答':'ㄉㄚˊ',
+  '問':'ㄨㄣˋ','作':'ㄗㄨㄛˋ','業':'ㄧㄝˋ','練':'ㄌㄧㄢˋ','習':'ㄒㄧˊ','考':'ㄎㄠˇ',
+  '試':'ㄕˋ','成':'ㄔㄥˊ','教':'ㄐㄧㄠ','室':'ㄕˋ','音':'ㄧㄣ','樂':'ㄌㄜˋ',
+  '美':'ㄇㄟˇ','術':'ㄕㄨˋ','育':'ㄩˋ','算':'ㄙㄨㄢˋ','數':'ㄕㄨˋ','館':'ㄍㄨㄢˇ',
+  '走':'ㄗㄡˇ','跑':'ㄆㄠˇ','跳':'ㄊㄧㄠˋ','飛':'ㄈㄟ','游':'ㄧㄡˊ','爬':'ㄆㄚˊ',
+  '站':'ㄓㄢˋ','坐':'ㄗㄨㄛˋ','躺':'ㄊㄤˇ','看':'ㄎㄢˋ','聽':'ㄊㄧㄥ','說':'ㄕㄨㄛ',
+  '讀':'ㄉㄨˊ','寫':'ㄒㄧㄝˇ','唱':'ㄔㄤˋ','畫':'ㄏㄨㄚˋ','吃':'ㄔ','喝':'ㄏㄜ',
+  '睡':'ㄕㄨㄟˋ','玩':'ㄨㄢˊ','笑':'ㄒㄧㄠˋ','哭':'ㄎㄨ','想':'ㄒㄧㄤˇ','開':'ㄎㄞ',
+  '關':'ㄍㄨㄢ','拿':'ㄋㄚˊ','放':'ㄈㄤˋ','找':'ㄓㄠˇ','拉':'ㄌㄚ','推':'ㄊㄨㄟ',
+  '打':'ㄉㄚˇ','拍':'ㄆㄞ','洗':'ㄒㄧˇ','穿':'ㄔㄨㄢ','脫':'ㄊㄨㄛ','買':'ㄇㄞˇ',
+  '賣':'ㄇㄞˋ','送':'ㄙㄨㄥˋ','收':'ㄕㄡ','借':'ㄐㄧㄝˋ','還':'ㄏㄨㄢˊ','幫':'ㄅㄤ',
+  '救':'ㄐㄧㄡˋ','保':'ㄅㄠˇ','護':'ㄏㄨˋ','帶':'ㄉㄞˋ','等':'ㄉㄥˇ','用':'ㄩㄥˋ',
+  '做':'ㄗㄨㄛˋ','建':'ㄐㄧㄢˋ','造':'ㄗㄠˋ','修':'ㄒㄧㄡ','剪':'ㄐㄧㄢˇ','知':'ㄓ',
+  '道':'ㄉㄠˋ','懂':'ㄉㄨㄥˇ','記':'ㄐㄧˋ','忘':'ㄨㄤˋ','告':'ㄍㄠˋ','訴':'ㄙㄨˋ',
+  '回':'ㄏㄨㄟˊ','講':'ㄐㄧㄤˇ','搖':'ㄧㄠˊ','摘':'ㄓㄞ','採':'ㄘㄞˇ','搬':'ㄅㄢ',
+  '換':'ㄏㄨㄢˋ','整':'ㄓㄥˇ','理':'ㄌㄧˇ','跟':'ㄍㄣ','騎':'ㄑㄧˊ','舉':'ㄐㄩˇ',
+  '接':'ㄐㄧㄝ','掛':'ㄍㄨㄚˋ','排':'ㄆㄞˊ','插':'ㄔㄚ','愛':'ㄞˋ','喜':'ㄒㄧˇ',
+  '歡':'ㄏㄨㄢ','快':'ㄎㄨㄞˋ','難':'ㄋㄢˊ','過':'ㄍㄨㄛˋ','傷':'ㄕㄤ','生':'ㄕㄥ',
+  '氣':'ㄑㄧˋ','怒':'ㄋㄨˋ','怕':'ㄆㄚˋ','害':'ㄏㄞˋ','感':'ㄍㄢˇ','謝':'ㄒㄧㄝˋ',
+  '擔':'ㄉㄢ','思':'ㄙ','念':'ㄋㄧㄢˋ','急':'ㄐㄧˊ','慌':'ㄏㄨㄤ','驚':'ㄐㄧㄥ',
+  '訝':'ㄧㄚˋ','恨':'ㄏㄣˋ','是':'ㄕˋ','不':'ㄅㄨˋ','也':'ㄧㄝˇ','都':'ㄉㄡ',
+  '很':'ㄏㄣˇ','太':'ㄊㄞˋ','最':'ㄗㄨㄟˋ','真':'ㄓㄣ','才':'ㄘㄞˊ','就':'ㄐㄧㄡˋ',
+  '已':'ㄧˇ','經':'ㄐㄧㄥ','又':'ㄧㄡˋ','再':'ㄗㄞˋ','從':'ㄘㄨㄥˊ','到':'ㄉㄠˋ',
+  '在':'ㄗㄞˋ','有':'ㄧㄡˇ','沒':'ㄇㄟˊ','和':'ㄏㄜˊ','與':'ㄩˇ','或':'ㄏㄨㄛˋ',
+  '但':'ㄉㄢˋ','雖':'ㄙㄨㄟ','然':'ㄖㄢˊ','因':'ㄧㄣ','為':'ㄨㄟˊ','所':'ㄙㄨㄛˇ',
+  '以':'ㄧˇ','如':'ㄖㄨˊ','只':'ㄓˇ','要':'ㄧㄠˋ','讓':'ㄖㄤˋ','被':'ㄅㄟˋ',
+  '把':'ㄅㄚˇ','給':'ㄍㄟˇ','向':'ㄒㄧㄤˋ','比':'ㄅㄧˇ','像':'ㄒㄧㄤˋ','的':'ㄉㄜ˙',
+  '得':'ㄉㄜ˙','了':'ㄌㄜ˙','著':'ㄓㄜ˙','嗎':'ㄇㄚ˙','呢':'ㄋㄜ˙','吧':'ㄅㄚ˙',
+  '來':'ㄌㄞˊ','去':'ㄑㄩˋ','能':'ㄋㄥˊ','會':'ㄏㄨㄟˋ','可':'ㄎㄜˇ','對':'ㄉㄨㄟˋ',
+  '悄':'ㄑㄧㄠˇ','話':'ㄏㄨㄚˋ','神':'ㄕㄣˊ','秘':'ㄇㄧˋ','其':'ㄑㄧˊ','病':'ㄅㄧㄥˋ',
+  '探':'ㄊㄢˋ','望':'ㄨㄤˋ','惜':'ㄒㄧ','無':'ㄨˊ','法':'ㄈㄚˇ','辦':'ㄅㄢˋ',
+  '挖':'ㄨㄚ','坑':'ㄎㄥ','之':'ㄓ','請':'ㄑㄧㄥˇ','客':'ㄎㄜˋ','吸':'ㄒㄧ',
+  '模':'ㄇㄡˊ','樣':'ㄧㄤˋ','度':'ㄉㄨˋ','久':'ㄐㄧㄡˇ','條':'ㄊㄧㄠˊ','飯':'ㄈㄢˋ',
+  '麵':'ㄇㄧㄢˋ','湯':'ㄊㄤ','菜':'ㄘㄞˋ','肉':'ㄖㄡˋ','蛋':'ㄉㄢˋ','豆':'ㄉㄡˋ',
+  '腐':'ㄈㄨˇ','餅':'ㄅㄧㄥˇ','糖':'ㄊㄤˊ','米':'ㄇㄧˇ','包':'ㄅㄠ','粥':'ㄓㄡ',
+  '糕':'ㄍㄠ','醋':'ㄘㄨˋ','鹽':'ㄧㄢˊ','油':'ㄧㄡˊ','桌':'ㄓㄨㄛ','椅':'ㄧˇ',
+  '床':'ㄔㄨㄤˊ','門':'ㄇㄣˊ','窗':'ㄔㄨㄤ','燈':'ㄉㄥ','鐘':'ㄓㄨㄥ','鏡':'ㄐㄧㄥˋ',
+  '球':'ㄑㄧㄡˊ','車':'ㄔㄜ','船':'ㄔㄨㄢˊ','機':'ㄐㄧ','視':'ㄕˋ','衣':'ㄧ',
+  '服':'ㄈㄨˊ','鞋':'ㄒㄧㄝˊ','帽':'ㄇㄠˋ','袋':'ㄉㄞˋ','錢':'ㄑㄧㄢˊ','禮':'ㄌㄧˇ',
+  '物':'ㄨˋ','具':'ㄐㄩˋ','冰':'ㄅㄧㄥ','箱':'ㄒㄧㄤ','架':'ㄐㄧㄚˋ','燒':'ㄕㄠ',
+  '碗':'ㄨㄢˇ','盤':'ㄆㄢˊ','筷':'ㄎㄨㄞˋ','杯':'ㄅㄟ','瓶':'ㄆㄧㄥˊ','鍋':'ㄍㄨㄛ',
+  '房':'ㄈㄤˊ','院':'ㄩㄢˋ','公':'ㄍㄨㄥ','市':'ㄕˋ','商':'ㄕㄤ','店':'ㄉㄧㄢˋ',
+  '路':'ㄌㄨˋ','街':'ㄐㄧㄝ','橋':'ㄑㄧㄠˊ','城':'ㄔㄥˊ','村':'ㄘㄨㄣ','鄉':'ㄒㄧㄤ',
+  '國':'ㄍㄨㄛˊ','台':'ㄊㄞˊ','灣':'ㄨㄢ','縣':'ㄒㄧㄢˋ','區':'ㄑㄩ','醫':'ㄧ',
+  '超':'ㄔㄠ','場':'ㄔㄤˊ','廚':'ㄔㄨˊ','廁':'ㄘˋ','好':'ㄏㄠˇ','壞':'ㄏㄨㄞˋ',
+  '新':'ㄒㄧㄣ','舊':'ㄐㄧㄡˋ','多':'ㄉㄨㄛ','少':'ㄕㄠˇ','長':'ㄔㄤˊ','短':'ㄉㄨㄢˇ',
+  '寬':'ㄎㄨㄢ','窄':'ㄓㄞˇ','重':'ㄓㄨㄥˋ','輕':'ㄑㄧㄥ','圓':'ㄩㄢˊ','平':'ㄆㄧㄥˊ',
+  '直':'ㄓˊ','甜':'ㄊㄧㄢˊ','苦':'ㄎㄨˇ','辣':'ㄌㄚˋ','酸':'ㄙㄨㄢ','鹹':'ㄒㄧㄢˊ',
+  '香':'ㄒㄧㄤ','臭':'ㄔㄡˋ','軟':'ㄖㄨㄢˇ','硬':'ㄧㄥˋ','滑':'ㄏㄨㄚˊ','粗':'ㄘㄨ',
+  '細':'ㄒㄧˋ','亮':'ㄌㄧㄤˋ','暗':'ㄢˋ','安':'ㄢ','全':'ㄑㄩㄢˊ','危':'ㄨㄟˊ',
+  '險':'ㄒㄧㄢˇ','勇':'ㄩㄥˇ','敢':'ㄍㄢˇ','溫':'ㄨㄣ','柔':'ㄖㄡˊ','善':'ㄕㄢˋ',
+  '良':'ㄌㄧㄤˊ','誠':'ㄔㄥˊ','實':'ㄕˊ','認':'ㄖㄣˋ','努':'ㄋㄨˇ','力':'ㄌㄧˋ',
+  '聰':'ㄘㄨㄥ','活':'ㄏㄨㄛˊ','潑':'ㄆㄛ','靜':'ㄐㄧㄥˋ','乖':'ㄍㄨㄞ','乾':'ㄍㄢ',
+  '淨':'ㄐㄧㄥˋ','髒':'ㄗㄤ','胖':'ㄆㄤˋ','瘦':'ㄕㄡˋ','深':'ㄕㄣ','淺':'ㄑㄧㄢˇ',
+  '滿':'ㄇㄢˇ','覺':'ㄐㄩㄝˊ','餐':'ㄘㄢ','螢':'ㄧㄥˊ','幕':'ㄇㄨˋ','發':'ㄈㄚ',
+  '意':'ㄧˋ','注':'ㄓㄨˋ','符':'ㄈㄨˊ','號':'ㄏㄠˋ','聲':'ㄕㄥ','調':'ㄉㄧㄠˋ',
+  '句':'ㄐㄩˋ','段':'ㄉㄨㄢˋ','篇':'ㄆㄧㄢ','章':'ㄓㄤ','名':'ㄇㄧㄥˊ','位':'ㄨㄟˋ',
+  '個':'ㄍㄜˋ','些':'ㄒㄧㄝ','每':'ㄇㄟˇ','各':'ㄍㄜˋ','共':'ㄍㄨㄥˋ','半':'ㄅㄢˋ',
+  '雙':'ㄕㄨㄤ','單':'ㄉㄢ','次':'ㄘˋ','第':'ㄉㄧˋ','常':'ㄔㄤˊ','總':'ㄗㄨㄥˇ',
+  '慢':'ㄇㄢˋ','剛':'ㄍㄤ','曾':'ㄘㄥˊ','信':'ㄒㄧㄣˋ','封':'ㄈㄥ','簿':'ㄅㄨˋ',
+  '藥':'ㄧㄠˋ','針':'ㄓㄣ','痛':'ㄊㄨㄥˋ','癢':'ㄧㄤˇ','錯':'ㄘㄨㄛˋ','準':'ㄓㄨㄣˇ',
+  '備':'ㄅㄟˋ','移':'ㄧˊ','搜':'ㄙㄡ','尋':'ㄒㄩㄣˊ','清':'ㄑㄧㄥ','濁':'ㄓㄨㄛˊ',
+  '溼':'ㄕ','強':'ㄑㄧㄤˊ','弱':'ㄖㄨㄛˋ','厚':'ㄏㄡˋ','薄':'ㄅㄛˊ','尖':'ㄐㄧㄢ',
+  '報':'ㄅㄠˋ','帖':'ㄊㄧㄝ','解':'ㄐㄧㄝˇ','釋':'ㄕˋ','冊':'ㄘㄜˋ','卷':'ㄐㄩㄢˋ',
+  '正':'ㄓㄥˋ','反':'ㄈㄢˇ','合':'ㄏㄜˊ','別':'ㄅㄧㄝˊ','加':'ㄐㄧㄚ','減':'ㄐㄧㄢˇ',
+  '乘':'ㄔㄥˊ','除':'ㄔㄨˊ','方':'ㄈㄤ','角':'ㄐㄧㄠˇ','線':'ㄒㄧㄢˋ','點':'ㄉㄧㄢˇ',
+  '顏':'ㄧㄢˊ','形':'ㄒㄧㄥˊ','狀':'ㄓㄨㄤˋ','興':'ㄒㄧㄥˋ','悲':'ㄅㄟ','孤':'ㄍㄨ',
+  '寂':'ㄐㄧˊ','寞':'ㄇㄛˋ','羞':'ㄒㄧㄡ',
+  '櫃':'ㄍㄨㄟˋ','頭':'ㄊㄡˊ','領':'ㄌㄧㄥˇ','頸':'ㄐㄧㄥˇ','題':'ㄊㄧˊ',
+  '緊':'ㄐㄧㄣˇ','整':'ㄓㄥˇ','齊':'ㄑㄧˊ','豐':'ㄈㄥ','富':'ㄈㄨˋ',
+  '漂':'ㄆㄧㄠ','亮':'ㄌㄧㄤˋ','整':'ㄓㄥˇ','齊':'ㄑㄧˊ','乾':'ㄍㄢ',
+  '淨':'ㄐㄧㄥˋ','確':'ㄑㄩㄝˋ','定':'ㄉㄧㄥˋ','完':'ㄨㄢˊ','成':'ㄔㄥˊ',
 };
 
-// Alternate readings for common characters
 const ZY_ALT = {
-  '模': ['ㄇㄡˊ','ㄇㄨˊ'],
-  '過': ['ㄍㄨㄛˋ','ㄍㄨㄛ'],
-  '度': ['ㄉㄨˋ','ㄉㄨㄛˋ'],
-  '長': ['ㄔㄤˊ','ㄓㄤˇ'],
-  '好': ['ㄏㄠˇ','ㄏㄠˋ'],
-  '中': ['ㄓㄨㄥ','ㄓㄨㄥˋ'],
+  '模':['ㄇㄡˊ','ㄇㄨˊ'],'過':['ㄍㄨㄛˋ','ㄍㄨㄛ'],'度':['ㄉㄨˋ','ㄉㄨㄛˋ'],
+  '長':['ㄔㄤˊ','ㄓㄤˇ'],'好':['ㄏㄠˇ','ㄏㄠˋ'],'中':['ㄓㄨㄥ','ㄓㄨㄥˋ'],
+  '地':['ㄉㄧˋ','ㄉㄜ˙'],'得':['ㄉㄜ˙','ㄉㄜˊ'],'了':['ㄌㄜ˙','ㄌㄧㄠˇ'],
 };
 
 const PUNCT = new Set(['。','，','、','！','？','；','：','"','"','（','）','…','—','-','～']);
+const TONES = new Set(['ˊ','ˇ','ˋ','˙']);
 
-let currentCell = null; // for zhuyin popup
+let worksheetData = null;
+let currentCell = null;
 
-// Parse words from input
 function parseWords(text) {
-  return text
-    .split(/[。，、 \n\r\t]+/)
-    .map(w => w.trim())
-    .filter(w => w.length > 0);
+  return text.split(/[。，、 \n\r\t]+/).map(w => w.trim()).filter(w => w.length > 0);
 }
 
-// Get zhuyin for a character
-function getZhuyin(char) {
-  return ZY[char] || '';
+function splitZhuyin(zy) {
+  if (!zy) return { body: '', tone: '' };
+  let tone = '', body = '';
+  for (const ch of zy) {
+    if (TONES.has(ch)) tone = ch;
+    else body += ch;
+  }
+  return { body, tone };
 }
 
-// Build cell data array from words
 function buildCells(words) {
   const cells = [];
   for (let wi = 0; wi < words.length; wi++) {
     const word = words[wi];
-    for (let ci = 0; ci < word.length; ci++) {
-      const char = word[ci];
+    for (const char of word) {
       cells.push({
         char,
-        zhuyin: getZhuyin(char),
+        zhuyin: ZY[char] || '',
         zyAlts: ZY_ALT[char] || null,
         isPunct: PUNCT.has(char),
         hidden: false,
         zyHidden: false,
       });
     }
-    // add separator between words (period)
     if (wi < words.length - 1) {
-      cells.push({ char: '。', zhuyin: '', isPunct: true, isSep: true, hidden: false, zyHidden: true });
+      cells.push({ char:'。', zhuyin:'', isPunct:true, isSep:true, hidden:false, zyHidden:true });
     }
   }
   return cells;
 }
 
-// Lay out cells into vertical columns
 function layoutColumns(cells, colLen) {
   const cols = [];
-  for (let i = 0; i < cells.length; i += colLen) {
-    cols.push(cells.slice(i, i + colLen));
-  }
-  return cols; // each col = top to bottom
+  for (let i = 0; i < cells.length; i += colLen) cols.push(cells.slice(i, i + colLen));
+  return cols;
 }
 
-let worksheetData = null; // { cells, cols }
-let zhuyinMode = 'show';
-
-function generate() {
+async function generate() {
   const raw = document.getElementById('wordsInput').value;
-  const title = document.getElementById('titleInput').value || '語詞練習';
-  zhuyinMode = document.getElementById('zhuyinMode').value;
   const colLen = parseInt(document.getElementById('colCount').value);
   const charMode = document.getElementById('charMode').value;
-
   const words = parseWords(raw);
-  if (words.length === 0) {
-    alert('請輸入至少一個語詞！');
-    return;
+  if (!words.length) { alert('請輸入至少一個語詞！'); return; }
+
+  // 找出資料庫沒有的字
+  const missing = new Set();
+  words.forEach(w => [...w].forEach(ch => {
+    if (!PUNCT.has(ch) && !ZY[ch]) missing.add(ch);
+  }));
+
+  // 用萌典 API 查注音
+  if (missing.size > 0) {
+    const btn = document.querySelector('.btn-generate');
+    btn.textContent = '⏳ 查詢注音中...';
+    btn.disabled = true;
+    try {
+      await Promise.all([...missing].map(async ch => {
+        try {
+          const res = await fetch(`https://www.moedict.tw/a/${encodeURIComponent(ch)}.json`);
+          if (!res.ok) return;
+          const data = await res.json();
+          // 取第一個讀音
+          const p = data?.h?.[0]?.p || '';
+          if (p) ZY[ch] = p;
+        } catch(e) {}
+      }));
+    } finally {
+      btn.textContent = '👁 生成預覽';
+      btn.disabled = false;
+    }
   }
 
   const cells = buildCells(words);
-  // Set initial hidden state
   cells.forEach(c => {
     c.hidden = charMode === 'hide' && !c.isPunct;
-    c.zyHidden = zhuyinMode === 'hide';
+    c.zyHidden = false;
   });
-
   const cols = layoutColumns(cells, colLen);
-  worksheetData = { cells, cols, title, colLen };
-
-  renderWorksheet(worksheetData);
+  worksheetData = { cells, cols };
+  renderWorksheet(cols);
 }
 
-function renderWorksheet(data) {
-  const { cols } = data;
-
+function renderWorksheet(cols) {
   const area = document.getElementById('worksheetArea');
   area.innerHTML = '';
-
-  // Grid
   const wrap = document.createElement('div');
   wrap.className = 'worksheet-wrap';
-
   const grid = document.createElement('div');
   grid.className = 'grid-container';
 
-  cols.forEach((colCells, ci) => {
+  cols.forEach(colCells => {
     const colEl = document.createElement('div');
-    colEl.className = 'grid-column';
-
-    colCells.forEach((cell, ri) => {
-      const cellEl = buildCellEl(cell, ci, ri);
-      colEl.appendChild(cellEl);
-    });
-
+    colEl.className = 'grid-col';
+    colCells.forEach(cell => colEl.appendChild(buildCellEl(cell)));
     grid.appendChild(colEl);
   });
 
   wrap.appendChild(grid);
   area.appendChild(wrap);
-
-  // Close popup on outside click
-  document.addEventListener('click', closePopupOutside, { once: false });
-}
-
-// Split zhuyin string into { body: [...chars], tone: '' }
-function splitZhuyin(zy) {
-  if (!zy) return { body: [], tone: '' };
-  const toneMarks = 'ˊˇˋ˙';
-  let tone = '';
-  let body = '';
-  for (const ch of zy) {
-    if (toneMarks.includes(ch)) tone = ch;
-    else body += ch;
-  }
-  // split body into individual zhuyin symbols
-  // Each zhuyin character is a single Unicode char (U+3105–U+312F range)
-  const chars = [...body]; // spread handles multi-byte correctly
-  return { body: chars, tone };
-}
-
-function buildZyColContent(zyCol, cell) {
-  zyCol.innerHTML = '';
-  if (!cell.zhuyin || cell.zyHidden) return;
-  const { body, tone } = splitZhuyin(cell.zhuyin);
-
-  const bodyDiv = document.createElement('div');
-  bodyDiv.className = 'zy-body';
-  body.forEach(ch => {
-    const s = document.createElement('span');
-    s.className = 'zy-char';
-    s.textContent = ch;
-    bodyDiv.appendChild(s);
+  document.addEventListener('click', e => {
+    if (!document.getElementById('zyPopup').contains(e.target)) {
+      document.getElementById('zyPopup').classList.remove('open');
+    }
   });
-
-  const toneDiv = document.createElement('div');
-  toneDiv.className = 'zy-tone';
-  if (tone) {
-    const s = document.createElement('span');
-    s.className = 'zy-tone-char';
-    s.textContent = tone;
-    toneDiv.appendChild(s);
-  }
-
-  zyCol.appendChild(bodyDiv);
-  zyCol.appendChild(toneDiv);
 }
 
-function buildCellEl(cell, ci, ri) {
+function buildCellEl(cell) {
   const cellEl = document.createElement('div');
-  cellEl.className = 'cell' + (cell.isPunct ? ' punct' : ' has-char') + (cell.hidden ? ' hidden' : '');
+  cellEl.className = 'cell' + (cell.isPunct ? ' punct' : '') + (cell.hidden ? ' hidden' : '');
 
-  // char box
+  // 字格
   const charBox = document.createElement('div');
-  charBox.className = 'char-box';
+  charBox.className = 'char-box' + (cell.isPunct ? ' no-hover' : '');
 
   const charInner = document.createElement('div');
   charInner.className = 'char-inner';
@@ -699,121 +624,136 @@ function buildCellEl(cell, ci, ri) {
   charBox.appendChild(charInner);
 
   if (!cell.isPunct) {
-    charBox.addEventListener('click', (e) => {
+    charBox.addEventListener('click', e => {
       e.stopPropagation();
       cell.hidden = !cell.hidden;
       cellEl.classList.toggle('hidden', cell.hidden);
     });
   }
 
-  // zhuyin col
+  // 注音欄
   const zyCol = document.createElement('div');
-  zyCol.className = 'zhuyin-col';
-  buildZyColContent(zyCol, cell);
+  zyCol.className = 'zy-col';
+  renderZyCol(zyCol, cell);
 
-  if (!cell.isPunct && cell.zhuyin !== undefined) {
-    zyCol.addEventListener('click', (e) => {
+  if (!cell.isPunct) {
+    zyCol.addEventListener('click', e => {
       e.stopPropagation();
-      openZyPopup(cell, zyCol, cellEl, ci, ri);
+      openZyPopup(cell, zyCol);
     });
   }
 
   cellEl.appendChild(charBox);
   cellEl.appendChild(zyCol);
-
-  // store refs
   cell._cellEl = cellEl;
   cell._zyCol = zyCol;
-
   return cellEl;
 }
 
-// ── Zhuyin popup ──
-function openZyPopup(cell, zyCol, cellEl, ci, ri) {
+function renderZyCol(zyCol, cell) {
+  zyCol.innerHTML = '';
+  if (!cell.zhuyin || cell.zyHidden || cell.isPunct) return;
+
+  const { body, tone } = splitZhuyin(cell.zhuyin);
+
+  // 注音本體（聲母+韻母）垂直排列在左側
+  const bodyDiv = document.createElement('div');
+  bodyDiv.className = 'zy-body';
+  for (const ch of body) {
+    const s = document.createElement('span');
+    s.className = 'zy-sym';
+    s.textContent = ch;
+    bodyDiv.appendChild(s);
+  }
+  zyCol.appendChild(bodyDiv);
+
+  // 聲調：計算垂直位置，對齊到最後一個注音符號旁
+  if (tone) {
+    const t = document.createElement('span');
+    t.className = 'zy-tone';
+    t.textContent = tone;
+    // Cell height = 48px, each sym ~13px tall
+    // Body is vertically centered. Calculate tone top based on bodyLen.
+    const cellH = 48;
+    const symH = 13;
+    const bodyLen = [...body].length;
+    const bodyH = bodyLen * symH;
+    const bodyTop = (cellH - bodyH) / 2; // where body starts
+    if (tone === '˙') {
+      // 輕聲在最上方
+      t.style.top = bodyTop + 'px';
+    } else {
+      // 聲調對齊最後一個符號
+      t.style.top = (bodyTop + (bodyLen - 1) * symH) + 'px';
+    }
+    zyCol.appendChild(t);
+  }
+}
+
+// ── Popup ──
+function openZyPopup(cell, zyCol) {
   currentCell = { cell, zyCol };
   const popup = document.getElementById('zyPopup');
-  const title = document.getElementById('zyPopupTitle');
+  document.getElementById('zyPopupTitle').textContent = `「${cell.char}」注音`;
   const opts = document.getElementById('zyOptions');
-
-  title.textContent = `「${cell.char}」選擇讀音`;
   opts.innerHTML = '';
 
-  const readings = cell.zyAlts || (cell.zhuyin ? [cell.zhuyin] : []);
-  if (cell.zhuyin && cell.zyAlts && !cell.zyAlts.includes(cell.zhuyin)) {
-    readings.unshift(cell.zhuyin);
-  }
+  const readings = [];
+  if (cell.zhuyin) readings.push(cell.zhuyin);
+  if (cell.zyAlts) cell.zyAlts.forEach(r => { if (!readings.includes(r)) readings.push(r); });
 
   if (readings.length === 0) {
-    // No reading found: allow manual input
     const inp = document.createElement('input');
+    inp.className = 'zy-inp';
     inp.type = 'text';
-    inp.placeholder = '輸入注音';
+    inp.placeholder = '輸入注音（如：ㄏㄣˇ）';
     inp.value = cell.zhuyin || '';
-    inp.style.cssText = 'width:100%;padding:6px 10px;border:1.5px solid #ccc;border-radius:6px;font-size:14px;margin-bottom:8px';
     inp.addEventListener('input', () => {
       cell.zhuyin = inp.value;
-      refreshZyCol(cell, zyCol);
+      cell.zyHidden = false;
+      renderZyCol(zyCol, cell);
     });
     opts.appendChild(inp);
   } else {
-    readings.forEach((r, idx) => {
+    readings.forEach((r, i) => {
       const btn = document.createElement('div');
       btn.className = 'zy-option' + (cell.zhuyin === r && !cell.zyHidden ? ' selected' : '');
-      btn.innerHTML = `${r}<small>${idx === 0 ? '本讀' : '讀音 ' + (idx+1)}</small>`;
+      btn.innerHTML = `${r}<small>${i === 0 ? '本讀' : '讀音 '+(i+1)}</small>`;
       btn.addEventListener('click', () => {
         cell.zhuyin = r;
         cell.zyHidden = false;
-        refreshZyCol(cell, zyCol);
-        document.querySelectorAll('.zy-option').forEach(o => o.classList.remove('selected'));
+        renderZyCol(zyCol, cell);
+        opts.querySelectorAll('.zy-option').forEach(o => o.classList.remove('selected'));
         btn.classList.add('selected');
       });
       opts.appendChild(btn);
     });
   }
 
-  // position popup near zyCol
   const rect = zyCol.getBoundingClientRect();
-  popup.style.top = Math.min(rect.top + window.scrollY, window.scrollY + window.innerHeight - 220) + 'px';
-  popup.style.left = Math.max(8, rect.right + 8) + 'px';
-  if (rect.right + 200 > window.innerWidth) {
-    popup.style.left = Math.max(8, rect.left - 200) + 'px';
-  }
+  popup.style.top  = Math.min(rect.top + window.scrollY, window.scrollY + window.innerHeight - 220) + 'px';
+  popup.style.left = (rect.right + 8 + 180 < window.innerWidth)
+    ? (rect.right + 8) + 'px'
+    : Math.max(8, rect.left - 188) + 'px';
   popup.classList.add('open');
 }
 
 function hideZhuyin() {
   if (!currentCell) return;
   currentCell.cell.zyHidden = true;
-  refreshZyCol(currentCell.cell, currentCell.zyCol);
+  renderZyCol(currentCell.zyCol, currentCell.cell);
   document.getElementById('zyPopup').classList.remove('open');
 }
 
-function refreshZyCol(cell, zyCol) {
-  buildZyColContent(zyCol, cell);
-}
-
-function closePopupOutside(e) {
-  const popup = document.getElementById('zyPopup');
-  if (!popup.contains(e.target)) {
-    popup.classList.remove('open');
-  }
-}
-
-// Toggle all chars
 function toggleAll(hide) {
   if (!worksheetData) return;
-  worksheetData.cells.forEach(cell => {
-    if (!cell.isPunct) {
-      cell.hidden = hide;
-      if (cell._cellEl) cell._cellEl.classList.toggle('hidden', hide);
+  worksheetData.cells.forEach(c => {
+    if (!c.isPunct) {
+      c.hidden = hide;
+      if (c._cellEl) c._cellEl.classList.toggle('hidden', hide);
     }
   });
 }
-
-// Pre-fill example on load
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('wordsInput').value = '悄悄話。神秘。小白兔。其他。猴子。生病。探望。身體。可惜。無法。辦法。挖坑。之後。請客。鼻子。吸水。一模一樣。度過。';
-});
 </script>
 </body>
 </html>
