@@ -207,13 +207,8 @@
   }
   .cell.punct .char-inner { font-size: 18px; }
 
-  /* Hidden = white bg, char invisible, keep tian zi ge lines */
-  .cell.hidden .char-box {
-    background: white;
-    min-width: var(--cell);
-    width: var(--cell);
-  }
-  .cell.hidden .char-inner { opacity: 0; }
+  /* Hidden = char invisible only, box stays identical */
+  .cell.hidden .char-inner { visibility: hidden; }
 
   .char-box:not(.no-hover):hover .char-inner { opacity: .5; }
 
@@ -307,29 +302,25 @@
   .zy-btn-hide:hover { background: #c04040; }
 
   @media print {
-    header, .panel, .hint, .btn-group, .preview-header .btn-group,
-    .preview-header, .preview-title, .zy-popup,
-    .container > *:not(.preview-panel) { display: none !important; }
-    * { -webkit-print-color-adjust: exact; }
-    body { background: white; margin: 0; padding: 0; }
-    .container { padding: 0; margin: 0; }
-    .preview-panel { box-shadow: none; padding: 0; border-radius: 0; margin: 0; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: white !important; margin: 0; padding: 0; }
+    header { display: none !important; }
+    .panel { display: none !important; }
+    .hint { display: none !important; }
+    .btn-group { display: none !important; }
+    .preview-header { display: none !important; }
     .zy-popup { display: none !important; }
+    .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+    .preview-panel { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; margin: 0 !important; }
     .worksheet-wrap {
       display: flex;
-      justify-content: flex-end;  /* 從右邊開始 */
+      justify-content: flex-end;
       width: 100%;
-    }
-    .grid-container {
-      margin: 0;
+      overflow: visible;
     }
     @page {
       size: auto;
       margin: 10mm;
-    }
-    /* 自動縮放避免超出一頁 */
-    .worksheet-wrap {
-      transform-origin: top right;
     }
   }
 </style>
