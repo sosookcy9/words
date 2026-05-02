@@ -165,7 +165,7 @@
     border-bottom: 1px solid #bbb;
     flex-shrink: 0;
   }
-  .cell:last-child { border-bottom: none; }
+  /* 保留所有格子底線，包含最後一格 */
 
   /* 字格: square with tian zi ge lines */
   .char-box {
@@ -207,8 +207,8 @@
   }
   .cell.punct .char-inner { font-size: 18px; }
 
-  /* Hidden = pink bg, char invisible */
-  .cell.hidden .char-box { background: #fadadd; }
+  /* Hidden = white bg, char invisible, keep tian zi ge lines */
+  .cell.hidden .char-box { background: white; }
   .cell.hidden .char-inner { opacity: 0; }
 
   .char-box:not(.no-hover):hover .char-inner { opacity: .5; }
@@ -303,10 +303,28 @@
   .zy-btn-hide:hover { background: #c04040; }
 
   @media print {
-    header, .panel, .hint, .btn-group, .preview-header .btn-group { display: none !important; }
-    body { background: white; }
-    .preview-panel { box-shadow: none; padding: 0; border-radius: 0; }
+    header, .panel, .hint, .btn-group, .preview-header .btn-group,
+    .preview-header, .preview-title { display: none !important; }
+    body { background: white; margin: 0; padding: 0; }
+    .container { padding: 0; margin: 0; }
+    .preview-panel { box-shadow: none; padding: 0; border-radius: 0; margin: 0; }
     .zy-popup { display: none !important; }
+    .worksheet-wrap {
+      display: flex;
+      justify-content: flex-end;  /* 從右邊開始 */
+      width: 100%;
+    }
+    .grid-container {
+      margin: 0;
+    }
+    @page {
+      size: auto;
+      margin: 10mm;
+    }
+    /* 自動縮放避免超出一頁 */
+    .worksheet-wrap {
+      transform-origin: top right;
+    }
   }
 </style>
 </head>
@@ -358,7 +376,7 @@
       <div class="btn-group">
         <button class="btn-sm btn-reveal" onclick="toggleAll(false)">全部顯示</button>
         <button class="btn-sm btn-hide"   onclick="toggleAll(true)">全部隱藏</button>
-        <button class="btn-sm btn-print"  onclick="window.print()">🖨 列印</button>
+        <button class="btn-sm btn-print"  onclick="autoPrintScale()">🖨 列印</button>
       </div>
     </div>
     <div class="hint">💡 點擊<strong>國字</strong>可切換顯示／隱藏；點擊<strong>注音</strong>可修改或隱藏</div>
@@ -810,10 +828,26 @@ function openZyPopup(cell, zyCol) {
   opts.appendChild(inp);
 
   const rect = zyCol.getBoundingClientRect();
-  popup.style.top  = Math.min(rect.top + window.scrollY, window.scrollY + window.innerHeight - 220) + 'px';
-  popup.style.left = (rect.right + 8 + 180 < window.innerWidth)
-    ? (rect.right + 8) + 'px'
-    : Math.max(8, rect.left - 188) + 'px';
+  const popupH = 240; // 預估 popup 高度
+  const popupW = 200;
+
+  // 垂直：優先顯示在格子旁邊，超出畫面底部則往上移
+  let top = rect.top;
+  if (top + popupH > window.innerHeight - 10) {
+    top = window.innerHeight - popupH - 10;
+  }
+  if (top < 10) top = 10;
+
+  // 水平：優先右邊，不夠則左邊
+  let left = rect.right + 8;
+  if (left + popupW > window.innerWidth - 8) {
+    left = rect.left - popupW - 8;
+  }
+  if (left < 8) left = 8;
+
+  popup.style.position = 'fixed';
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
   popup.classList.add('open');
 }
 
@@ -822,6 +856,27 @@ function hideZhuyin() {
   currentCell.cell.zyHidden = true;
   renderZyCol(currentCell.zyCol, currentCell.cell);
   document.getElementById('zyPopup').classList.remove('open');
+}
+
+function autoPrintScale() {
+  const wrap = document.querySelector('.worksheet-wrap');
+  const grid = document.querySelector('.grid-container');
+  if (wrap && grid) {
+    // 重設縮放
+    wrap.style.transform = '';
+    const available = window.innerWidth - 40;
+    const gridW = grid.offsetWidth;
+    if (gridW > available) {
+      const scale = available / gridW;
+      wrap.style.transform = `scale(${scale})`;
+      wrap.style.transformOrigin = 'top right';
+    }
+  }
+  window.print();
+  // 列印後重設
+  setTimeout(() => {
+    if (wrap) wrap.style.transform = '';
+  }, 1000);
 }
 
 function toggleAll(hide) {
