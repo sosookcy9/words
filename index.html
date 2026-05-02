@@ -323,7 +323,7 @@
 
     <div style="margin-bottom:12px">
       <label>輸入語詞（以句號、逗號、空格或換行分隔）</label>
-      <textarea id="wordsInput" placeholder="例：悄悄話。神秘。小白兔。猴子。生病。探望。身體。"></textarea>
+      <textarea id="wordsInput" placeholder=""></textarea>
     </div>
 
     <div class="row">
@@ -566,8 +566,9 @@ async function generate() {
           if (!res.ok) return;
           const data = await res.json();
           // 取第一個讀音
-          const p = data?.h?.[0]?.p || '';
-          if (p) ZY[ch] = p;
+          // 萌典：t 是注音，h[0].p 是拼音
+          const zy = data?.t || data?.h?.[0]?.t || '';
+          if (zy) ZY[ch] = zy;
         } catch(e) {}
       }));
     } finally {
