@@ -18,7 +18,8 @@
     --green: #4caf7d;
     --border: #ddd;
     --cell: 52px;
-    --zhuyin-w: 18px;
+    --zy-body-w: 14px;
+    --zy-tone-w: 10px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -223,15 +224,16 @@
 
   /* Each cell can hold a character + zhuyin */
   .cell {
-    width: calc(var(--cell) + var(--zhuyin-w));
+    width: calc(var(--cell) + var(--zy-body-w) + var(--zy-tone-w));
     height: var(--cell);
     border-bottom: 1px solid #ccc;
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    flex-direction: row;
+    align-items: stretch;
     flex-shrink: 0;
     cursor: default;
+    overflow: hidden;
   }
   .cell:last-child { border-bottom: none; }
 
@@ -244,6 +246,7 @@
     justify-content: center;
     position: relative;
     flex-shrink: 0;
+    flex-grow: 0;
   }
 
   /* Tian zi ge (田字格) grid lines inside char cell */
@@ -275,7 +278,7 @@
 
   /* Hidden state */
   .cell.hidden .char-inner { opacity: 0; }
-  .cell.hidden .char-box { background: #fdf3c0; }
+  .cell.hidden .char-box { background: #f9d4d4; }
 
   /* Punctuation */
   .cell.punct .char-inner { font-size: 20px; }
@@ -284,25 +287,48 @@
   /* Blank fill cell */
   .cell.blank-fill .char-box { background: #f0f7ff; border: 1.5px dashed #aac; }
 
-  /* Zhuyin area */
+  /* Zhuyin area - two sub-columns: body + tone */
   .zhuyin-col {
-    width: var(--zhuyin-w);
+    width: calc(var(--zy-body-w) + var(--zy-tone-w));
     height: var(--cell);
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .zy-body {
+    width: var(--zy-body-w);
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     padding-top: 3px;
-    gap: 1px;
-    cursor: pointer;
-    flex-shrink: 0;
   }
 
-  .zhuyin-text {
-    writing-mode: vertical-rl;
+  .zy-tone {
+    width: var(--zy-tone-w);
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 3px;
+  }
+
+  .zy-char {
     font-size: 11px;
-    line-height: 1.1;
-    color: #888;
+    line-height: 1.15;
+    color: #333;
+    font-family: 'Noto Sans TC', sans-serif;
+    user-select: none;
+  }
+
+  .zy-tone-char {
+    font-size: 11px;
+    line-height: 1;
+    color: #333;
     font-family: 'Noto Sans TC', sans-serif;
     user-select: none;
   }
@@ -585,21 +611,10 @@ function generate() {
 }
 
 function renderWorksheet(data) {
-  const { cols, title } = data;
+  const { cols } = data;
 
   const area = document.getElementById('worksheetArea');
   area.innerHTML = '';
-
-  // Title
-  const t = document.createElement('div');
-  t.className = 'worksheet-title';
-  t.textContent = title;
-  area.appendChild(t);
-
-  const sub = document.createElement('div');
-  sub.className = 'worksheet-subtitle';
-  sub.textContent = `共 ${data.cells.filter(c=>!c.isPunct).length} 字`;
-  area.appendChild(sub);
 
   // Grid
   const wrap = document.createElement('div');
@@ -627,6 +642,49 @@ function renderWorksheet(data) {
   document.addEventListener('click', closePopupOutside, { once: false });
 }
 
+// Split zhuyin string into { body: [...chars], tone: '' }
+function splitZhuyin(zy) {
+  if (!zy) return { body: [], tone: '' };
+  const toneMarks = 'ˊˇˋ˙';
+  let tone = '';
+  let body = '';
+  for (const ch of zy) {
+    if (toneMarks.includes(ch)) tone = ch;
+    else body += ch;
+  }
+  // split body into individual zhuyin symbols
+  // Each zhuyin character is a single Unicode char (U+3105–U+312F range)
+  const chars = [...body]; // spread handles multi-byte correctly
+  return { body: chars, tone };
+}
+
+function buildZyColContent(zyCol, cell) {
+  zyCol.innerHTML = '';
+  if (!cell.zhuyin || cell.zyHidden) return;
+  const { body, tone } = splitZhuyin(cell.zhuyin);
+
+  const bodyDiv = document.createElement('div');
+  bodyDiv.className = 'zy-body';
+  body.forEach(ch => {
+    const s = document.createElement('span');
+    s.className = 'zy-char';
+    s.textContent = ch;
+    bodyDiv.appendChild(s);
+  });
+
+  const toneDiv = document.createElement('div');
+  toneDiv.className = 'zy-tone';
+  if (tone) {
+    const s = document.createElement('span');
+    s.className = 'zy-tone-char';
+    s.textContent = tone;
+    toneDiv.appendChild(s);
+  }
+
+  zyCol.appendChild(bodyDiv);
+  zyCol.appendChild(toneDiv);
+}
+
 function buildCellEl(cell, ci, ri) {
   const cellEl = document.createElement('div');
   cellEl.className = 'cell' + (cell.isPunct ? ' punct' : ' has-char') + (cell.hidden ? ' hidden' : '');
@@ -651,13 +709,7 @@ function buildCellEl(cell, ci, ri) {
   // zhuyin col
   const zyCol = document.createElement('div');
   zyCol.className = 'zhuyin-col';
-
-  if (cell.zhuyin && !cell.zyHidden) {
-    const zyText = document.createElement('div');
-    zyText.className = 'zhuyin-text';
-    zyText.textContent = cell.zhuyin;
-    zyCol.appendChild(zyText);
-  }
+  buildZyColContent(zyCol, cell);
 
   if (!cell.isPunct && cell.zhuyin !== undefined) {
     zyCol.addEventListener('click', (e) => {
@@ -737,13 +789,7 @@ function hideZhuyin() {
 }
 
 function refreshZyCol(cell, zyCol) {
-  zyCol.innerHTML = '';
-  if (cell.zhuyin && !cell.zyHidden) {
-    const zyText = document.createElement('div');
-    zyText.className = 'zhuyin-text';
-    zyText.textContent = cell.zhuyin;
-    zyCol.appendChild(zyText);
-  }
+  buildZyColContent(zyCol, cell);
 }
 
 function closePopupOutside(e) {
