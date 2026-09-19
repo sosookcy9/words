@@ -41,6 +41,7 @@
     z-index: 100;
     box-shadow: 0 2px 10px rgba(0,0,0,.08);
   }
+  header .home { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   header h1 { font-family: 'Noto Serif TC', serif; font-size: 17px; font-weight: 700; }
   header p  { font-size: 11px; color: var(--ink-light); margin-top: 2px; }
 
@@ -330,7 +331,7 @@
 <body>
 
 <header>
-  <div>
+  <div class="home" onclick="goHome()">
     <h1>語詞考券產生器</h1>
     <p>輸入語詞，自動產生注音國字填空練習</p>
   </div>
@@ -365,8 +366,8 @@
     <div class="preview-header">
       <div class="preview-title">預覽</div>
       <div class="btn-group">
-        <button class="btn-sm btn-reveal" onclick="toggleAll(false)">全部顯示</button>
-        <button class="btn-sm btn-hide"   onclick="toggleAll(true)">全部隱藏</button>
+        <button class="btn-sm btn-reveal" onclick="toggleChars()">國字顯示/隱藏</button>
+        <button class="btn-sm btn-hide"   onclick="toggleZy()">注音顯示/隱藏</button>
         <button class="btn-sm btn-print"  onclick="autoPrintScale()">列印</button>
       </div>
     </div>
@@ -876,14 +877,35 @@ function autoPrintScale() {
   }, 1000);
 }
 
-function toggleAll(hide) {
+function toggleChars() {
   if (!worksheetData) return;
-  worksheetData.cells.forEach(c => {
-    if (!c.isPunct) {
-      c.hidden = hide;
-      if (c._cellEl) c._cellEl.classList.toggle('hidden', hide);
-    }
+  const cells = worksheetData.cells.filter(c => !c.isPunct);
+  const hide = cells.some(c => !c.hidden);   // 還有顯示的 → 全部隱藏；否則全部顯示
+  cells.forEach(c => {
+    c.hidden = hide;
+    if (c._cellEl) c._cellEl.classList.toggle('hidden', hide);
   });
+}
+
+function toggleZy() {
+  if (!worksheetData) return;
+  const cells = worksheetData.cells.filter(c => !c.isPunct && c.zhuyin);
+  const hide = cells.some(c => !c.zyHidden);
+  cells.forEach(c => {
+    c.zyHidden = hide;
+    if (c._zyCol) renderZyCol(c._zyCol, c);
+  });
+}
+
+function goHome() {
+  document.getElementById('wordsInput').value = '';
+  document.getElementById('colCount').value = '12';
+  document.getElementById('zyPopup').classList.remove('open');
+  document.getElementById('worksheetArea').innerHTML =
+    '<div class="empty-state"><p>請輸入語詞後按「生成預覽」</p></div>';
+  worksheetData = null;
+  currentCell = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 </body>
